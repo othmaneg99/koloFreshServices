@@ -8,11 +8,18 @@ require('dotenv').config();
 
 //Get documents:
 app.get('/',async (req,res)=>{
-    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.query.dbName}?retryWrites=true&w=majority`;
+    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.query.dbName}`;
     const client = new MongoClient(uri);
     try{
         await client.connect();
         const filters=JSON.parse(req.query.filters)
+        console.log(filters)
+        if(filters._id){
+            const ObjectId = require('mongodb').ObjectId; 
+            let good_id = new ObjectId(filters._id);
+            filters._id = good_id;
+        }
+        console.log(filters)
         const result = await client.db(req.query.dbName).collection(req.query.collectionName).find(filters);
         if (result){
              const results = await result.toArray();
@@ -28,7 +35,7 @@ app.get('/',async (req,res)=>{
 
 //Create one documents
 app.post('/one',async (req,res)=>{
-    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}?retryWrites=true&w=majority`;
+    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}`;
     const client = new MongoClient(uri);
     try{
         await client.connect();
@@ -46,7 +53,7 @@ app.post('/one',async (req,res)=>{
 //Create many:
 app.post('/many',async (req,res)=>{
     //Data should be an array of object!!!!!!
-    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}?retryWrites=true&w=majority`;
+    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}`;
     const client = new MongoClient(uri);
     try{
         await client.connect();
@@ -70,7 +77,7 @@ app.post('/many',async (req,res)=>{
 //update One:
 
 app.patch('/one',async (req,res)=>{
-    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}?retryWrites=true&w=majority`;
+    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}`;
     const client = new MongoClient(uri);
     try{
         await client.connect();
@@ -90,7 +97,7 @@ app.patch('/one',async (req,res)=>{
 //upsert One:
 
 app.patch('/sertOne',async (req,res)=>{
-    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}?retryWrites=true&w=majority`;
+    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}`;
     const client = new MongoClient(uri);
     try{
         await client.connect();
@@ -116,7 +123,7 @@ app.patch('/sertOne',async (req,res)=>{
 //update many:
 
 app.patch('/many',async (req,res)=>{
-    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}?retryWrites=true&w=majority`;
+    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}`;
     const client = new MongoClient(uri);
     try{
         await client.connect();
@@ -144,7 +151,7 @@ app.patch('/many',async (req,res)=>{
 //delete document:
 
 app.delete('/',async (req,res)=>{
-    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}?retryWrites=true&w=majority`;
+    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}`;
     const client = new MongoClient(uri);
     try{
         await client.connect();
@@ -160,13 +167,14 @@ app.delete('/',async (req,res)=>{
 
 //Soft Delete:
 app.delete('/one',async (req,res)=>{
-    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}?retryWrites=true&w=majority`;
+    console.log({token : req.body.token, isRemoved : req.body.isRemoved, dbName : req.body.dbName, collection : req.body.collectionName})
+    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}`;
     const client = new MongoClient(uri);
     try{
         await client.connect();
         const result = await client.db(req.body.dbName).collection(req.body.collectionName)
                         .updateOne(req.body.filters, { $set:{isRemoved:true} });
-
+        console.log(result)
     console.log(`${result.matchedCount} document(s) matched the query criteria.`);
     console.log(`${result.modifiedCount} document(s) was/were deleted.`);
        res.status(200).send(`${result.modifiedCount} document(s) was/were deleted.`);
@@ -180,7 +188,7 @@ app.delete('/one',async (req,res)=>{
 
 //Soft Delete Many: done
 app.delete('/many',async (req,res)=>{
-    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}?retryWrites=true&w=majority`;
+    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}`;
     const client = new MongoClient(uri);
     try{
         await client.connect();
