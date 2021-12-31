@@ -77,11 +77,17 @@ app.post('/many',async (req,res)=>{
 app.patch('/one',async (req,res)=>{
     const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}`;
     const client = new MongoClient(uri);
+    const filters=req.body.filters;
+    if(filters._id){
+        const ObjectId = require('mongodb').ObjectId; 
+        let good_id = new ObjectId(filters._id);
+        filters._id = good_id;
+    }
     try{
         await client.connect();
         console.log(req.body.filters)
         const result = await client.db(req.body.dbName).collection(req.body.collectionName)
-                        .updateOne(req.body.filters, { $set: req.body.data});
+                        .updateOne(filters, { $set: req.body.data});
 
     console.log(`${result.matchedCount} document(s) matched the query criteria.`);
     console.log(`${result.modifiedCount} document(s) was/were updated.`);
@@ -99,9 +105,15 @@ app.patch('/sertOne',async (req,res)=>{
     const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}`;
     const client = new MongoClient(uri);
     try{
+        const filters=req.body.filters;
+        if(filters._id){
+            const ObjectId = require('mongodb').ObjectId; 
+            let good_id = new ObjectId(filters._id);
+            filters._id = good_id;
+        }
         await client.connect();
         const result = await client.db(req.body.dbName).collection(req.body.collectionName)
-                        .updateOne( req.body.filters,
+                        .updateOne( filters,
                                    { $set: req.body.data },
                                    { upsert: true });
         console.log(`${result.matchedCount} document(s) matched the query criteria.`);
@@ -125,16 +137,16 @@ app.patch('/many',async (req,res)=>{
     const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}`;
     const client = new MongoClient(uri);
     try{
+        const filters=req.body.filters;
+        if(filters._id){
+            const ObjectId = require('mongodb').ObjectId; 
+            let good_id = new ObjectId(filters._id);
+            filters._id = good_id;
+        }
         await client.connect();
         const result = await client.db(req.body.dbName).collection(req.body.collectionName)
-                        .updateMany(req.body.filters,
+                        .updateMany(filters,
                                     { $set:req.body.data });
-        /*if(result.matchedCount==0){
-            res.status(200).send("Not found");
-        } 
-        if(result.modifiedCount==0){
-            res.status(200).send("Not updated");
-        }*/
         console.log(`${result.matchedCount} document(s) matched the query criteria.`);
         console.log(`${result.modifiedCount} document(s) was/were updated.`);
         res.status(200).send(`${result.modifiedCount} document(s) was/were updated.`);
@@ -147,12 +159,20 @@ app.patch('/many',async (req,res)=>{
 })
 
 
+
+
 //delete document:
 
 app.delete('/',async (req,res)=>{
     const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}`;
     const client = new MongoClient(uri);
     try{
+        const filters=req.body.filters;
+        if(filters._id){
+            const ObjectId = require('mongodb').ObjectId; 
+            let good_id = new ObjectId(filters._id);
+            filters._id = good_id;
+        }
         await client.connect();
         const result = await client.db(req.body.dbName).collection(req.body.collectionName)
         .deleteMany(filters);
@@ -170,9 +190,15 @@ app.delete('/one',async (req,res)=>{
     const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}`;
     const client = new MongoClient(uri);
     try{
+        const filters=req.body.filters;
+        if(filters._id){
+            const ObjectId = require('mongodb').ObjectId; 
+            let good_id = new ObjectId(filters._id);
+            filters._id = good_id;
+        }
         await client.connect();
         const result = await client.db(req.body.dbName).collection(req.body.collectionName)
-                        .updateOne(req.body.filters, { $set:{isRemoved:true} });
+                        .updateOne(filters, { $set:{isRemoved:true} });
         console.log(result)
     console.log(`${result.matchedCount} document(s) matched the query criteria.`);
     console.log(`${result.modifiedCount} document(s) was/were deleted.`);
@@ -190,9 +216,15 @@ app.delete('/many',async (req,res)=>{
     const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}`;
     const client = new MongoClient(uri);
     try{
+        const filters=req.body.filters;
+        if(filters._id){
+            const ObjectId = require('mongodb').ObjectId; 
+            let good_id = new ObjectId(filters._id);
+            filters._id = good_id;
+        }
         await client.connect();
         const result = await client.db(req.body.dbName).collection(req.body.collectionName)
-                        .updateMany(req.body.filters,
+                        .updateMany(filters,
                                     { $set:{isRemoved:true}});
        
         console.log(`${result.matchedCount} document(s) matched the query criteria.`);
