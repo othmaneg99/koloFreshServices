@@ -13,8 +13,8 @@ async function getAccess(token) {
 router.post('/logout',async function(req,res,next){
         let result = await getAccess(req.body.token);
         if(result.length !=0){
-            var tokenUser = new Token({})
-            await tokenUser.delete({token : req.body.token})
+            var tokenUser = new Token({isRemoved : true})
+            await tokenUser.update({token : req.body.token, isRemoved : false})
             res.status(200).send('You have successfully logged out!')
         }else{
             res.status(401).send('TOKEN INVALID')

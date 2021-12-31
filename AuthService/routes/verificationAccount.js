@@ -5,21 +5,20 @@ var Token = require('../classes/Token')
   
 //verify Token
   
-function verifyToken(token) {
+async function verifyToken(token) {
     try {
-      jwt.verify(token, process.env.PrivateKey);
+      await jwt.verify(token, process.env.PrivateKey);
       return token
     }catch(err){
         console.log(err.message)
       return false
-  }
-    
+  }  
   }
   // get access token by user id
   
   async function getAccess(id) {
     const tokenObject = new Token({})
-    let tokenUser = await tokenObject.get({idUser : id, isRemoved : undefined})
+    let tokenUser = await tokenObject.get({idUser : id, isRemoved : false})
     return tokenUser
   }
 
@@ -29,7 +28,8 @@ router.use(async function (req, res, next) {
     if(accessToken.length == 0){res.status(401).status("TOKEN N'EXISTE PAS")}
     else{
         let user = new User({});
-        let existUser = await user.get({_id : req.body.id})
+        // get by id !!!!!!!!!
+        let existUser = await user.get({_id : req.body.id, isRemoved : false})
         if(existUser.length == 0){res.status(401).send("CE UTILISATEUR N'EXISTE PAS")}
         else {
             let token = verifyToken(accessToken[0]);

@@ -2,7 +2,8 @@ const axios = require("axios")
 
 collections = {
     User : "users",
-    Token : "tokens"
+    Token : "tokens",
+    Role : "roles"
 }
 
 module.exports = class Request {
@@ -14,7 +15,6 @@ module.exports = class Request {
       "collectionName" : collections[this.constructor.name],
       "data" : this
     }
-    console.log(data);
     let obj
     await axios.post(process.env.CRUDService+'/one', data).then(({ data }) => {
       obj = data

@@ -5,6 +5,8 @@ const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 var router = express.Router();
 var User = require("../classes/User")
 var Token = require("../classes/Token")
+var Role = require('../classes/Role')
+var {phone} = require('phone')
 const jwt = require('jsonwebtoken');
 var bcrypt = require('bcrypt')
 
@@ -106,29 +108,40 @@ router.use(session({
           isRemoved : false,
           email :userProfile.emails[0].value,
           isVerified : true,
-          isReseted : false};
+          isReseted : false,
+          isActive : true};
           let newUser = new User(userData);
           let userId = await newUser.post();
+          let role = new Role({role : 'customer', idUser : userId.insertedId, isRemoved : false})
+          await role.post();
+          userData._id = userId.insertedId
           let token = await generateToken(userData, true);
         res.status(200).send({user: newUser, token: token});
           // exist user 
           // verify token 
         }else{
-          let tokenUser = await getAccess(existUser[0]._id);
-          if(tokenUser.length == 0) { 
-            let accessToken = await generateToken(existUser[0],true)
-            res.status(200).send({user: existUser[0], token: accessToken});
-          }else{
-            let accessToken = await verifyToken(existUser[0],tokenUser[0].token, true);
-            // access token error
-            if(!accessToken){
-              res.status(401).send("ACCESS TOKEN INVALIDE")
-            } // access token generated with success
-            else{
+          // verifier le role
+          let role = new Role({})
+          hasRole = await role.get({role : 'customer', idUser : existUser[0]._id, isRemoved : false});
+          // l'utilisateur n'a pas le role
+          if(hasRole.length ==0) res.status(401).send("CE UTILISATEUR N'EXISTE PAS")
+          else //l'utilisateur a le role
+          {
+            let tokenUser = await getAccess(existUser[0]._id);
+            if(tokenUser.length == 0) { 
+              let accessToken = await generateToken(existUser[0],true)
               res.status(200).send({user: existUser[0], token: accessToken});
+            }else{
+              let accessToken = await verifyToken(existUser[0],tokenUser[0].token, true);
+              // access token error
+              if(!accessToken){
+                res.status(401).send("ACCESS TOKEN INVALIDE")
+              } // access token generated with success
+              else{
+                res.status(200).send({user: existUser[0], token: accessToken});
+              }
             }
-          }
-          
+          } 
         }
     });
   router.get('/error', (req, res) => res.status(401).send("error logging in"));
@@ -170,23 +183,41 @@ router.post('/', async function(req, res) {
     let user = new User({})
     let userData
     let accessToken
-    if(!req.body.email || !req.body.password) {res.status(500).send("MERCI DE REMPLIR TOUS LES CHAMPS.")}
+    if(!req.body.userName || !req.body.password) {res.status(500).send("MERCI DE REMPLIR TOUS LES CHAMPS.")}
     else{
-    userData = await user.get({email : req.body.email, isRemoved : false})
+      let filters 
+      if((req.body.userName).includes("@")){
+        filters = {email : req.body.userName, isRemoved : false} 
+      }
+      else{
+        let result = phone(req.body.userName, {country: 'MA'});
+        if(result.isValid){filters = {phone : result.phoneNumber, isRemoved : false}}
+        else {res.status(401).send("LE NOM D'UTILISATEUR N'EST PAS VALIDE");}
+      }
+    userData = await user.get(filters)
     // user n'existe pas
     if(userData.length == 0){
       res.status(401).send("CE UTILISATEUR N'EXISTE PAS")
     }// utilisateur existe
     else{
-      // vérifier mot de passe et générer token
-      accessToken = await checkPasswordAndSendToken(req.body.password,userData[0], req.query.rememberMe)
-      if(accessToken == "VOUS AVEZ SAISI L'ANCIEN MOT DE PASSE" /*|| accessToken == 'VOUS DEVEZ VERIFIER VOTRE COMPTE'*/){  
-        res.status(401).send(accessToken)
-      }else if(accessToken){
-        res.status(200).send({token : accessToken}) 
-      }else{
-        res.status(401).send("EMAIL OU MOT DE PASSE EST INCORRECT")
-      }   
+      // vérifier le role
+      const passedRole = req.body.role? req.body.role : 'customer'
+      let role = new Role({})
+      hasRole = await role.get({role : passedRole, idUser : userData[0]._id, isRemoved : false});
+      // l'utilisateur n'a pas le role
+      if(hasRole.length ==0) res.status(401).send("CE UTILISATEUR N'EXISTE PAS")
+      else //l'utilisateur a le role
+      {
+          // vérifier mot de passe et générer token
+          accessToken = await checkPasswordAndSendToken(req.body.password,userData[0], req.query.rememberMe)
+          if(accessToken == "VOUS AVEZ SAISI L'ANCIEN MOT DE PASSE" /*|| accessToken == 'VOUS DEVEZ VERIFIER VOTRE COMPTE'*/){  
+            res.status(401).send(accessToken)
+          }else if(accessToken){
+            res.status(200).send({token : accessToken}) 
+          }else{
+            res.status(401).send("NOM D'UTILISATEUR OU MOT DE PASSE EST INCORRECT")
+          }   
+      }
     }
     }
   });
