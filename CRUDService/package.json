@@ -1,7 +1,6 @@
 {
   "name": "crudservice",
   "version": "1.0.0",
-  "description": "",
   "scripts": {
     "start": "nodemon ./bin/www"
   },
@@ -17,5 +16,7 @@
     "morgan": "^1.10.0",
     "nodemon": "^2.0.15",
     "path": "^0.12.7"
-  }
+  },
+  "main": "app.js",
+  "description": ""
 }
