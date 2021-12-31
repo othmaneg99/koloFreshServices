@@ -15,9 +15,9 @@ require('dotenv').config()
 /* generate access token */
 
 async function generateToken(userData, rememberMe) {
-  //console.log(userData)
+  // duree de 15 jours <= 360h
   let duree = rememberMe? '360h' : '10h';
-  let accessToken = jwt.sign(userData, process.env.PrivateKey, { expiresIn: duree }); // duree de 15 jours <= 360h
+  let accessToken = jwt.sign(userData, process.env.PrivateKey, { expiresIn: duree }); 
   let tokenData = new Token({token : accessToken, idUser : userData._id, isRemoved : false})
   await tokenData.post();
   return accessToken
@@ -51,7 +51,6 @@ async function verifyToken(userData,token, rememberMe) {
 async function getAccess(id) {
   const tokenObject = new Token({})
   let tokenUser = await tokenObject.get({idUser : id, isRemoved : false})
-  console.log(tokenUser)
   return tokenUser
 }
 
@@ -102,7 +101,7 @@ router.use(session({
     let existUser = await user.get({isRemoved : false, email : userProfile.emails[0].value});
     // new user
     if(existUser.length == 0) {
-        let userData = { id_google : userProfile.id,
+          let userData = { id_google : userProfile.id,
           lastName : userProfile.name.familyName,
           firstName : userProfile.name.givenName,
           isRemoved : false,
@@ -118,15 +117,16 @@ router.use(session({
           let token = await generateToken(userData, true);
         res.status(200).send({user: newUser, token: token});
           // exist user 
-          // verify token 
         }else{
           // verifier le role
           let role = new Role({})
           hasRole = await role.get({role : 'customer', idUser : existUser[0]._id, isRemoved : false});
           // l'utilisateur n'a pas le role
-          if(hasRole.length ==0) res.status(401).send("CE UTILISATEUR N'EXISTE PAS")
-          else //l'utilisateur a le role
-          {
+          if(hasRole.length ==0) {
+            let role = new Role({role : 'customer', idUser : existUser._id, isRemoved : false})
+            await role.post()
+          }
+          // verify token 
             let tokenUser = await getAccess(existUser[0]._id);
             if(tokenUser.length == 0) { 
               let accessToken = await generateToken(existUser[0],true)
@@ -142,7 +142,6 @@ router.use(session({
               }
             }
           } 
-        }
     });
   router.get('/error', (req, res) => res.status(401).send("error logging in"));
   
@@ -186,9 +185,7 @@ router.post('/', async function(req, res) {
     if(!req.body.userName || !req.body.password) {res.status(500).send("MERCI DE REMPLIR TOUS LES CHAMPS.")}
     else{
       let filters 
-      if((req.body.userName).includes("@")){
-        filters = {email : req.body.userName, isRemoved : false} 
-      }
+      if((req.body.userName).includes("@")) filters = {email : req.body.userName, isRemoved : false} 
       else{
         let result = phone(req.body.userName, {country: 'MA'});
         if(result.isValid){filters = {phone : result.phoneNumber, isRemoved : false}}
@@ -200,7 +197,7 @@ router.post('/', async function(req, res) {
       res.status(401).send("CE UTILISATEUR N'EXISTE PAS")
     }// utilisateur existe
     else{
-      // vérifier le role
+      // vérifier le role send role partner si il s'agit d'un cuisinier
       const passedRole = req.body.role? req.body.role : 'customer'
       let role = new Role({})
       hasRole = await role.get({role : passedRole, idUser : userData[0]._id, isRemoved : false});
@@ -213,7 +210,7 @@ router.post('/', async function(req, res) {
           if(accessToken == "VOUS AVEZ SAISI L'ANCIEN MOT DE PASSE" /*|| accessToken == 'VOUS DEVEZ VERIFIER VOTRE COMPTE'*/){  
             res.status(401).send(accessToken)
           }else if(accessToken){
-            res.status(200).send({token : accessToken}) 
+            res.status(200).send(accessToken) 
           }else{
             res.status(401).send("NOM D'UTILISATEUR OU MOT DE PASSE EST INCORRECT")
           }   

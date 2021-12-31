@@ -22,9 +22,13 @@ router.post('/', async function(req, res, next) {
       res.status(401).send("LE NUMERO DE TELEPHONE N'EST PAS VALIDE");      
     }else{
       let userData2 = await user.get({phone :  result.phoneNumber, isRemoved : false})
-      // user existe deja
+      // user existe deja email et phone unique
       if(userData.length != 0 || userData2.length !=0){
-          res.status(401).send("CE UTILISATEUR EXISTE DEJA")
+           // verifier avec role customer
+           let role1 = new Role({})
+           let resultRole1 = await role1.get({role : 'customer', idUser : userData1._id, isRemoved : false})
+           let resultRole2 = await role1.get({role : 'customer', idUser : userData2._id, isRemoved : false})
+           if(resultRole1.length!=0 || resultRole2.length!=0) res.status(401).send("CE UTILISATEUR EXISTE DEJA")
       }
       // new user
       else{
@@ -51,10 +55,9 @@ router.post('/', async function(req, res, next) {
               isActive : true
           });
           let userId = await newUser.post();
-          const passedRole = req.body.role? req.body.role : 'customer'
-          let role = new Role({role : passedRole, idUser : userId.insertedId, isRemoved : false})
+          let role = new Role({role : 'customer', idUser : userId.insertedId, isRemoved : false})
           await role.post();
-          let newUserData = await newUser.get({email : email, isRemoved : false});
+          let newUserData = await newUser.get({_id : userId.insertedId, isRemoved : false});
           res.status(200).send({user : newUserData});
         }
       }

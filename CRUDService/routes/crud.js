@@ -13,13 +13,11 @@ app.get('/',async (req,res)=>{
     try{
         await client.connect();
         const filters=JSON.parse(req.query.filters)
-        console.log(filters)
         if(filters._id){
             const ObjectId = require('mongodb').ObjectId; 
             let good_id = new ObjectId(filters._id);
             filters._id = good_id;
         }
-        console.log(filters)
         const result = await client.db(req.query.dbName).collection(req.query.collectionName).find(filters);
         if (result){
              const results = await result.toArray();
@@ -81,6 +79,7 @@ app.patch('/one',async (req,res)=>{
     const client = new MongoClient(uri);
     try{
         await client.connect();
+        console.log(req.body.filters)
         const result = await client.db(req.body.dbName).collection(req.body.collectionName)
                         .updateOne(req.body.filters, { $set: req.body.data});
 
