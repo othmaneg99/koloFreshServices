@@ -123,7 +123,7 @@ router.use(session({
           hasRole = await role.get({role : 'customer', idUser : existUser[0]._id, isRemoved : false});
           // l'utilisateur n'a pas le role
           if(hasRole.length ==0) {
-            let role = new Role({role : 'customer', idUser : existUser._id, isRemoved : false})
+            let role = new Role({role : 'customer', idUser : existUser[0]._id, isRemoved : false})
             await role.post()
           }
           // verify token 
@@ -200,21 +200,28 @@ router.post('/', async function(req, res) {
       // vérifier le role send role partner si il s'agit d'un cuisinier
       const passedRole = req.body.role? req.body.role : 'customer'
       let role = new Role({})
-      hasRole = await role.get({role : passedRole, idUser : userData[0]._id, isRemoved : false});
-      // l'utilisateur n'a pas le role
-      if(hasRole.length ==0) res.status(401).send("CE UTILISATEUR N'EXISTE PAS")
-      else //l'utilisateur a le role
-      {
-          // vérifier mot de passe et générer token
-          accessToken = await checkPasswordAndSendToken(req.body.password,userData[0], req.query.rememberMe)
-          if(accessToken == "VOUS AVEZ SAISI L'ANCIEN MOT DE PASSE" /*|| accessToken == 'VOUS DEVEZ VERIFIER VOTRE COMPTE'*/){  
-            res.status(401).send(accessToken)
-          }else if(accessToken){
-            res.status(200).send(accessToken) 
-          }else{
-            res.status(401).send("NOM D'UTILISATEUR OU MOT DE PASSE EST INCORRECT")
-          }   
+      let hasRole;
+      let isValid= false;
+      // check for each exist user
+      for (let i = 0; i < userData.length; i++) {
+        hasRole = await role.get({role : passedRole, idUser : userData[i]._id, isRemoved : false});
+        // l'utilisateur a le role
+        if(hasRole.length !=0) 
+        {
+            isValid = true; // user a le role
+            // vérifier mot de passe et générer token
+            accessToken = await checkPasswordAndSendToken(req.body.password,userData[i], req.query.rememberMe)
+            if(accessToken == "VOUS AVEZ SAISI L'ANCIEN MOT DE PASSE" /*|| accessToken == 'VOUS DEVEZ VERIFIER VOTRE COMPTE'*/){  
+              res.status(401).send(accessToken)
+            }else if(accessToken){
+              res.status(200).send(accessToken) 
+            }else{
+              res.status(401).send("NOM D'UTILISATEUR OU MOT DE PASSE EST INCORRECT")
+            }   
+        }
       }
+      // l'utilisateur n'a pas le role
+      if(!isValid) res.status(401).send("CE UTILISATEUR N'EXISTE PAS")
     }
     }
   });

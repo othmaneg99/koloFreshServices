@@ -13,25 +13,42 @@ router.post('/', async function(req, res, next) {
    if(!req.body.email || !req.body.phone || !req.body.password || !req.body.firstName || !req.body.lastName) {
      res.status(500).send("MERCI DE REMPLIR TOUS LES CHAMPS.")
    }else {
+    let isValid = true;
     let user = new User({});
     let userData = await user.get({email : req.body.email, isRemoved : false})
     // verify phone
     let phoneNumber = req.body.phone
     let result = phone(phoneNumber, {country: 'MA'});
     if(!result.isValid){
+      isValid = false;
       res.status(401).send("LE NUMERO DE TELEPHONE N'EST PAS VALIDE");      
     }else{
       let userData2 = await user.get({phone :  result.phoneNumber, isRemoved : false})
+      // verifier avec role customer
+      let role1 = new Role({})
+      let resultRole
       // user existe deja email et phone unique
-      if(userData.length != 0 || userData2.length !=0){
-           // verifier avec role customer
-           let role1 = new Role({})
-           let resultRole1 = await role1.get({role : 'customer', idUser : userData1._id, isRemoved : false})
-           let resultRole2 = await role1.get({role : 'customer', idUser : userData2._id, isRemoved : false})
-           if(resultRole1.length!=0 || resultRole2.length!=0) res.status(401).send("CE UTILISATEUR EXISTE DEJA")
+      if(userData.length != 0){
+            // verifier pour tous les users with the same @mail
+            for (let i = 0; i < userData.length; i++) {
+              resultRole = await role1.get({role : 'customer', idUser : userData[i]._id, isRemoved : false})
+              if(resultRole.length!=0) {
+                isValid = false
+                res.status(401).send("CE UTILISATEUR EXISTE DEJA")
+              }
+             }
+      }else if( userData2.length !=0){
+            // verifier pour tous les users with the same phoneNumber
+            for (let i = 0; i < userData2.length; i++) {
+              resultRole = await role1.get({role : 'customer', idUser : userData2[i]._id, isRemoved : false})
+              if(resultRole.length!=0) {
+                isValid = false;
+                res.status(401).send("CE UTILISATEUR EXISTE DEJA")
+              }
+            }
       }
       // new user
-      else{
+      if(isValid){
         let password=req.body.password
         let email = req.body.email
         // verify taille mot de passe 

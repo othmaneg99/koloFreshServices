@@ -10,7 +10,7 @@ var router = express.Router();
     if(!req.body.firstName || !req.body.lastName || !req.body.phone) res.status(401).send("MERCI DE REMPLIR TOUS LES CHAMPS.")
     else{
         if(req.body.email){
-            if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))res.status(401).send("L'ADRESSE MAIL N'EST PAS VALIDE")
+            if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(req.body.email))res.status(401).send("L'ADRESSE MAIL N'EST PAS VALIDE")
         }
         let phoneNumber = req.body.phone
         let result = phone(phoneNumber, {country: 'MA'});
@@ -18,40 +18,54 @@ var router = express.Router();
             res.status(401).send("LE NUMERO DE TELEPHONE N'EST PAS VALIDE");      
         }
         let user = new User({});
-        if(req.body.email){
+        let userData1
+        let userData2
+        let role1
+        let resultRole
         // verifier email existe ou non
-        let userData1 = await user.get({email : req.body.email, isRemoved : false})
-        if(userData1.length !=0) {
-            // verifier avec role partner
-            let role1 = new Role({})
-            let resultRole1 = await role1.get({role : 'partner', idUser : userData1._id, isRemoved : false})
-            if(resultRole1.length!=0) res.status(401).send("CE UTILISATEUR EXISTE DEJA")
+        if(req.body.email) {
+            userData1 = await user.get({email : req.body.email, isRemoved : false})
+            // user existe deja email unique
+            if(userData1.length != 0){
+                // verifier avec role partner
+                role1 = new Role({})
+                // verifier pour tous les users with the same @mail
+                for (let i = 0; i < userData1.length; i++) {
+                resultRole = await role1.get({role : 'partner', idUser : userData1[i]._id, isRemoved : false})
+                if(resultRole.length!=0) res.status(401).send("CE UTILISATEUR EXISTE DEJA")
+                }
+            } 
+        }else{
+            // verifier phone existe ou non
+            userData2 = await user.get({phone :  result.phoneNumber, isRemoved : false})
+            // user existe deja email et phone unique
+            if(userData2.length !=0){
+                // verifier avec role partner
+                role1 = new Role({})
+                // verifier pour tous les users with the same phoneNumber
+                for (let i = 0; i < userData2.length; i++) {
+                resultRole = await role1.get({role : 'partner', idUser : userData2[i]._id, isRemoved : false})
+                if(resultRole.length!=0) res.status(401).send("CE UTILISATEUR EXISTE DEJA")
+                }
+            }else{
+                user = new User({firstName: req.body.firstName,
+                    lastName : req.body.lastName, 
+                    isRemoved : false,
+                    isVerified : false,
+                    isActive : false, // a besion d'un mot de passe et acceptation de admin
+                    isReseted : false,
+                    email: req.body.email,
+                    phone : result.phoneNumber
+                });
+                let idUser = await user.post();
+                let role = new Role({role : 'partner', idUser : idUser.insertedId, isRemoved : false})
+                await role.post();
+                // get the user info by id
+                let userData = await user.get({_id : idUser.insertedId, isRemoved : false})
+                // send it
+                res.status(200).send(userData);
+            }
         }
-        }
-        // verifier phone existe ou non
-        let userData2 = await user.get({phone :  result.phoneNumber, isRemoved : false})
-        if(userData2.length !=0) {
-            // verifier avec role partner
-            let role2 = new Role({})
-            let resultRole2 = await role2.get({role : 'partner', idUser : userData2._id, isRemoved : false})
-            if(resultRole2.length!=0) res.status(401).send("CE UTILISATEUR EXISTE DEJA")
-        } 
-        user = new User({firstName: req.body.firstName,
-            lastName : req.body.lastName, 
-            isRemoved : false,
-            isVerified : false,
-            isActive : false, // a besion d'un mot de passe et acceptation de admin
-            isReseted : false,
-            email: req.body.email,
-            phone : result.phoneNumber
-        });
-        let idUser = await user.post();
-        let role = new Role({role : 'partner', idUser : idUser.insertedId, isRemoved : false})
-        await role.post();
-        // get the user info by id
-        let userData = await user.get({_id : idUser.insertedId, isRemoved : false})
-        // send it
-        res.status(200).send(userData);
     }
   })
 
