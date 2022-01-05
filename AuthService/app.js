@@ -8,6 +8,7 @@ var loginRouter = require('./routes/login');
 var registeRouter = require('./routes/registration')
 var userRouter = require('./routes/user')
 var partnerRouter = require('./routes/partner')
+var authorisationRouter = require('./routes/authorisation')
 var app = express();
 
 // view engine setup
@@ -25,6 +26,7 @@ app.use('/login', loginRouter);
 app.use('/register', registeRouter);
 app.use('/partner', partnerRouter)
 app.use('/user', userRouter)
+app.use('/authorisation', authorisationRouter)
 //app.use('/partner', partnerRouter)
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
