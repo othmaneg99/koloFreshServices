@@ -1,7 +1,8 @@
 const axios = require("axios")
 
 collections = {
-    Order : "orders"
+    Order : "orders", 
+    User : "users"
 }
 
 module.exports = class Request {
