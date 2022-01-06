@@ -11,15 +11,15 @@ function checkTime(dateHeureRecep) {
     let dateRecep = new Date(dateHeureRecep);
     let dateNow = new Date();
     let diff = Math.abs(dateRecep.getTime() - dateNow.getTime()) / 3600000; // return nb hours
+    console.log(diff)
     if (diff < 1) { return true }
     return false
 }
 
-async function informerClient(idClient, decision) {
+async function informerClient(idClient,numCommande, decisionCMD) {
     let user = new User({})
     let existUser = await user.get({_id : idClient, isRemoved : false})
     if(existUser){
-        let decisionCMD = decision=='refus'? "votre commande n'a pas pu être traitée" : "votre commande est en cours de préparation"
         // envoi mail
         var transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -32,17 +32,15 @@ async function informerClient(idClient, decision) {
         var mailOptions = {
             from: process.env.EMAIL,
             to: existUser[0].email,
-            subject: `KOLO FRESH | ${decisionCMD}`,
+            subject: `KOLO FRESH | Commande n° ${numCommande}`,
             text: `Bonjour ${existUser[0].lastName}, KOLO FRESH vous informe que ${decisionCMD}`
         };
         
         transporter.sendMail(mailOptions, function(error, info){
             if (error) {
                 console.log(error)
-                return error
             } else {
                 console.log('Email sent')
-                return 'Email sent'
             }
         });
     }
@@ -61,7 +59,6 @@ router.post('/', async function(req,res, next) {
         }
         const now = new Date();
         const dateHeureRecep = date.addHours(now,1); // UTC+01:00
-
         let orderData = new Order({
             numCommande : numCommande,
             dateHeureRecep : dateHeureRecep,
@@ -74,6 +71,8 @@ router.post('/', async function(req,res, next) {
         })
         let idOrder = await orderData.post();
         let dataOrder = await orderData.get({_id : idOrder.insertedId, isRemoved : false})
+        let dateRecep = dateHeureRecep.toLocaleString();
+        await informerClient(req.body.idClient, idOrder.insertedId,`Votre commande de ${dateRecep} est bien reçue,  N° commande est ${idOrder.insertedId}, Merci pour votre confiance`)
         res.status(200).send(dataOrder)
     }else{
         res.status(401).send("MERCI DE REMPLIR TOUS LES CHAMPS.")
@@ -85,11 +84,13 @@ router.get('/new', async function(req, res, next) {
     let listOrders = await order.get({idShop : req.query.idShop, status : 'new', isRemoved : false});
     let newListOrders = [];
     for (let i = 0; i < listOrders.length; i++) {
-        if(checkTime(listOrders[i].dateHeureRecep)){
+        let dateHeureRecep = new Date(listOrders[i].dateHeureRecep);
+        if(checkTime(dateHeureRecep)){
             newListOrders.push(listOrders[i])
         }else{
             if(listOrders[i].isAccepted){
-                await informerClient(listOrders[i].idClient, 'refus');
+                let dateRecep = dateHeureRecep.toLocaleString();
+                await informerClient(listOrders[i].idClient, listOrders[0]._id, `votre commande N° ${listOrders[i]._id} de ${dateRecep} n'a pas pu être traitée` );
                 let newOrder = new Order({isAccepted : false})
                 await newOrder.update({_id : listOrders[i]._id})
             }
