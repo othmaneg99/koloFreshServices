@@ -1,5 +1,6 @@
 "use strict";
 var nodemailer = require('nodemailer');
+const date = require('date-and-time')
 var express = require('express');
 var Order = require('../classes/Order')
 var User = require('../classes/User')
@@ -46,6 +47,38 @@ async function informerClient(idClient, decision) {
         });
     }
 }
+
+/* Add Order */
+router.post('/', async function(req,res, next) {
+    if(req.body.listProduits && req.body.idClient && req.body.idShop){
+        let order = new Order({})
+        let lastOrder = await order.getLastOne({})
+        let numCommande
+        if(lastOrder.length!=0){
+            numCommande = lastOrder[0].numCommande +1;
+        }else{
+            numCommande = 1;
+        }
+        const now = new Date();
+        const dateHeureRecep = date.addHours(now,1); // UTC+01:00
+
+        let orderData = new Order({
+            numCommande : numCommande,
+            dateHeureRecep : dateHeureRecep,
+            listProduits : req.body.listProduits,
+            isAccepted : true,
+            status : 'new',
+            idClient : req.body.idClient,
+            idShop : req.body.idShop,
+            isRemoved : false
+        })
+        let idOrder = await orderData.post();
+        let dataOrder = await orderData.get({_id : idOrder.insertedId, isRemoved : false})
+        res.status(200).send(dataOrder)
+    }else{
+        res.status(401).send("MERCI DE REMPLIR TOUS LES CHAMPS.")
+    }
+})
 /* GET new orders. */
 router.get('/new', async function(req, res, next) {
     let order = new Order({})
@@ -55,8 +88,11 @@ router.get('/new', async function(req, res, next) {
         if(checkTime(listOrders[i].dateHeureRecep)){
             newListOrders.push(listOrders[i])
         }else{
-            // fix problem user déjà informe par mail !!!!!!!!!!!
-            await informerClient(listOrders[i].idClient, 'refus');
+            if(listOrders[i].isAccepted){
+                await informerClient(listOrders[i].idClient, 'refus');
+                let newOrder = new Order({isAccepted : false})
+                await newOrder.update({_id : listOrders[i]._id})
+            }
         }
     }
     res.status(200).send(newListOrders)

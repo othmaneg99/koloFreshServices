@@ -38,6 +38,21 @@ module.exports = class Request {
     return items
   }
 
+  async getLastOne(filters) {
+    let data = {
+      "dbName" : "kolofresh", 
+      "collectionName" : collections[this.constructor.name],
+      "filters" : filters
+    }
+    let items;
+    await axios.get(process.env.CRUDService+'/last', {
+      params: data
+    }).then(({ data }) => {
+      items = data;
+    })
+    return items
+  }
+
   async update(filters) {
     let data = {
       "dbName" : "kolofresh", 
