@@ -78,7 +78,9 @@ router.post("/refuser", async function (req,res,next) {
 
 router.post("/done", async function (req,res,next) {
     if(req.body.numCommande){
-        let order = new Order({status : 'done'})
+        let now = new Date();
+        let dateHeureLivraison = date.addHours(now,1);
+        let order = new Order({status : 'done', dateHeureLivraison : dateHeureLivraison})
         await order.update({numCommande : req.body.numCommande, isRemoved : false})
         let dataOrder = await order.get({numCommande : req.body.numCommande, isRemoved : false})
         if(dataOrder.length !=0){

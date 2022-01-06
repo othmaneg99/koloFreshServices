@@ -10,6 +10,7 @@ module.exports =   class Order extends Request{
         this.status = data.status;
         this.idClient = data.idClient;
         this.idShop = data.idShop;
+        this.dateHeureLivraison = data.dateHeureLivraison
         this.isRemoved = data.isRemoved;
     }
 };

@@ -9,7 +9,8 @@ require('dotenv').config()
 
 function checkTime(dateHeureRecep) {
     let dateRecep = new Date(dateHeureRecep);
-    let dateNow = new Date();
+    let now = new Date();
+    let dateNow = date.addHours(now,1);
     let diff = Math.abs(dateRecep.getTime() - dateNow.getTime()) / 3600000; // return nb hours
     console.log(diff)
     if (diff < 1) { return true }
