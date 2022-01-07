@@ -1,5 +1,4 @@
 "use strict";
-var nodemailer = require('nodemailer');
 const date = require('date-and-time')
 var express = require('express');
 var Order = require('../classes/Order')
@@ -17,35 +16,6 @@ function checkTime(dateHeureRecep) {
     return false
 }
 
-async function informerClient(idClient,numCommande, decisionCMD) {
-    let user = new User({})
-    let existUser = await user.get({_id : idClient, isRemoved : false})
-    if(existUser){
-        // envoi mail
-        var transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-            user: process.env.EMAIL,
-            pass: process.env.PASSWORD
-            }
-        });
-        
-        var mailOptions = {
-            from: process.env.EMAIL,
-            to: existUser[0].email,
-            subject: `KOLO FRESH | Commande n° ${numCommande}`,
-            text: `Bonjour ${existUser[0].lastName}, KOLO FRESH vous informe que ${decisionCMD}`
-        };
-        
-        transporter.sendMail(mailOptions, function(error, info){
-            if (error) {
-                console.log(error)
-            } else {
-                console.log('Email sent')
-            }
-        });
-    }
-}
 
 /* Add Order */
 router.post('/', async function(req,res, next) {
@@ -71,10 +41,16 @@ router.post('/', async function(req,res, next) {
             isRemoved : false
         })
         let idOrder = await orderData.post();
-        let dataOrder = await orderData.get({_id : idOrder.insertedId, isRemoved : false})
+        //let dataOrder = await orderData.get({_id : idOrder.insertedId, isRemoved : false})
         let dateRecep = dateHeureRecep.toLocaleString();
-        await informerClient(req.body.idClient, idOrder.insertedId,`Votre commande de ${dateRecep} est bien reçue,  N° commande est ${idOrder.insertedId}, Merci pour votre confiance`)
-        res.status(200).send(dataOrder)
+        let user = new User({})
+        let existUser = await user.get({_id : req.body.idClient, isRemoved : false})
+        if(existUser.length!=0){
+                await new envoiEmail({nomClient : existUser[0].lastName+" "+existUser[0].firstName, emailClient : existUser[0].email, numCommande : idOrder.insertedId, decisionCMD : `Votre commande de ${dateRecep} est bien reçue ✔✔ ,  N° commande est ${idOrder.insertedId}, Merci pour votre confiance 🤗.`})
+                res.status(200).send("DONE");
+        }
+        orderData._id = idOrder.insertedId
+        res.status(200).send(orderData)
     }else{
         res.status(401).send("MERCI DE REMPLIR TOUS LES CHAMPS.")
     }
@@ -91,7 +67,12 @@ router.get('/new', async function(req, res, next) {
         }else{
             if(listOrders[i].isAccepted){
                 let dateRecep = dateHeureRecep.toLocaleString();
-                await informerClient(listOrders[i].idClient, listOrders[0]._id, `votre commande N° ${listOrders[i]._id} de ${dateRecep} n'a pas pu être traitée` );
+                let user = new User({})
+                let existUser = await user.get({_id : dataOrder[0].idClient, isRemoved : false})
+                if(existUser.length!=0){
+                    await new envoiEmail({nomClient : existUser[0].lastName+" "+existUser[0].firstName, emailClient : existUser[0].email, numCommande : dataOrder[0]._id, decisionCMD : `votre commande N° ${dataOrder[0]._id}  de ${dateRecep}  n'a pas pu être traitée`})
+                    res.status(200).send("DONE");
+                }
                 let newOrder = new Order({isAccepted : false})
                 await newOrder.update({_id : listOrders[i]._id})
             }

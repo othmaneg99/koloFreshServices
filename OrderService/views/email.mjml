@@ -1,0 +1,37 @@
+<mjml>
+  <mj-head>
+      <mj-font name="Montserrat" href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700" />
+  <mj-attributes>
+    <mj-all font-family="Montserrat" />
+  </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#ffff">
+    <mj-hero padding="10px">
+  <mj-image align="left" width="138px" src="kolofresh.png"/>
+</mj-hero>
+    <mj-section padding="20px">
+
+    <mj-column>
+
+        <mj-text font-size="29px" font-weight="700" color="#00643C" padding-bottom="30px">
+        La commande N° 
+        </mj-text>
+    <mj-text font-size="18px" color="#9798A4" font-weight="600" line-height="27px">
+  Bonjour Nesrine,
+</mj-text>
+
+      <mj-text font-size="15px" color="#9798A4" font-weight="400" line-height="27px">
+ kolofresh vous informe que votre commande est bien reçues.
+ </mj-text>
+       <mj-text font-size="15px" color="#9798A4" font-weight="400" line-height="27px">
+ Bonne journée 😊 .
+ </mj-text>
+<mj-text font-size="11px" color="#9798A4" font-weight="500" padding-top="30px">
+      kolofresh, maklat dar tjik tal dar 😋 .
+</mj-text>   
+
+    </mj-column>
+
+</mj-section>
+  </mj-body>
+</mjml>
