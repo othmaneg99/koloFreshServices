@@ -12,5 +12,6 @@ module.exports =   class Order extends Request{
         this.idShop = data.idShop;
         this.dateHeureLivraison = data.dateHeureLivraison
         this.isRemoved = data.isRemoved;
+        
     }
 }
