@@ -5,9 +5,10 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+//var usersRouter = require('./routes/users');
 var ordersRouter = require('./routes/orders')
 var decisionRouter = require('./routes/decision')
-
+var orderRouter = require('./routes/order');
 var app = express();
 
 app.use(logger('dev'));
@@ -21,6 +22,8 @@ app.set('view engine', 'ejs');
 app.use('/', indexRouter);
 app.use('/orders', ordersRouter);
 app.use('/decisionOrder', decisionRouter);
-app.use('/users', usersRouter);
+//app.use('/users', usersRouter);
+app.use('/order', orderRouter);
+
 
 module.exports = app;
