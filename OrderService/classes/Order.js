@@ -14,4 +14,4 @@ module.exports =   class Order extends Request{
         this.isRemoved = data.isRemoved;
         
     }
-};
+}

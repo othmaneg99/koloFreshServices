@@ -5,6 +5,40 @@ app.use(express.json());
 const { MongoClient}= require('mongodb');
 require('dotenv').config();
 
+function convertIds(ids){
+    let i=0;
+    for(i=0;i<ids.length;i++){
+        let ObjectId = require('mongodb').ObjectId; 
+        let good_id = new ObjectId(ids[i]);
+        ids[i] = good_id;
+    }
+    return ids;
+}
+
+/*Get many documents by their id (array of ids) */
+app.get('/id',async(req,res)=>{
+    
+    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.query.dbName}`;
+    const client = new MongoClient(uri);
+    try{
+        await client.connect();
+        const filters=JSON.parse(req.query.filters)
+        filters._id=convertIds(filters._id);
+        const result = await client.db(req.query.dbName).collection(req.query.collectionName)
+        .find({_id:{$in:filters._id}});
+        if (result){
+             const results = await result.toArray();
+             res.send(results);
+        }
+         else res.status(400).send("Not found");
+    }catch(e){
+        console.log(e);
+    }finally{
+        await client.close();
+    }
+    
+})
+
 
 //Get documents:
 app.get('/',async (req,res)=>{

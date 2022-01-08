@@ -1,4 +1,5 @@
 "use strict";
+const axios = require("axios")
 const date = require('date-and-time')
 var express = require('express');
 var Order = require('../classes/Order')
@@ -95,5 +96,40 @@ router.get('/done', async function(req, res, next) {
     let listOrders = await order.get({idShop : req.query.idShop, status : 'done', isRemoved : false});
     res.status(200).send(listOrders)
 });
+
+/*Get Order's Details */
+
+router.get('/viewOrder',async(req,res)=>{
+    let order=new Order({})
+    let filters=req.query.filters;
+    //filters.isRemoved=false;
+    let commande={};
+    let orderInfo= await order.get(filters);
+    if(orderInfo){
+        let ids=[];
+        let list=orderInfo[0].listProduits;
+        for(let i=0;i<list.length;i++){
+            ids.push(list[i].idProduit)
+        }
+        const prodFilters={_id:ids};
+        //Request for getting product's details
+        let data = {
+            "filters" : prodFilters
+          }
+          let products;
+          await axios.get(process.env.ProductService+'/id', {
+            params: data
+          }).then(({ data }) => {
+            products = data;
+          })
+          for(let i=0;i<list.length;i++){
+            list[i].prodDetails=products[i];
+        }
+        res.send(orderInfo);
+    }else
+        res.status(400).send("Not Found")
+    
+
+})
 
 module.exports = router;
