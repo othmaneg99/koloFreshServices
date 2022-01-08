@@ -1,14 +1,9 @@
 <mjml>
   <mj-head>
       <mj-font name="Montserrat" href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700" />
-  <mj-attributes>
-    <mj-all font-family="Montserrat" />
-  </mj-attributes>
+
   </mj-head>
-  <mj-body background-color="#ffff">
-    <mj-hero padding="10px">
   <mj-image align="left" width="138px" src="kolofresh.png"/>
-</mj-hero>
     <mj-section padding="20px">
 
     <mj-column>
@@ -33,5 +28,4 @@
     </mj-column>
 
 </mj-section>
-  </mj-body>
 </mjml>
