@@ -70,4 +70,14 @@ module.exports = class Request {
     })
     return items
   }
+
+  async postEmail(url, data) {
+    let obj
+    await axios.post(url, data).then(({ data }) => {
+      obj = data
+    }).catch(e => {
+      obj = e
+    })
+    return obj
+  }
 }
