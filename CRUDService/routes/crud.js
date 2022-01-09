@@ -92,6 +92,7 @@ app.get('/last',async (req,res)=>{
 
 //Create one documents
 app.post('/one',async (req,res)=>{
+
     const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}`;
     const client = new MongoClient(uri);
     try{
@@ -245,7 +246,7 @@ app.delete('/',async (req,res)=>{
 
 //Soft Delete:
 app.delete('/one',async (req,res)=>{
-    console.log({token : req.body.token, isRemoved : req.body.isRemoved, dbName : req.body.dbName, collection : req.body.collectionName})
+    console.log({filters : req.body.filters, dbName : req.body.dbName, collection : req.body.collectionName})
     const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.body.dbName}`;
     const client = new MongoClient(uri);
     try{
@@ -263,7 +264,7 @@ app.delete('/one',async (req,res)=>{
     console.log(`${result.modifiedCount} document(s) was/were deleted.`);
        res.status(200).send(`${result.modifiedCount} document(s) was/were deleted.`);
     }catch(e){
-        res.status(500).send(e);
+        res.send(e);
     }finally{
         await client.close();
     }
