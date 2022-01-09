@@ -1,11 +1,11 @@
 "use strict";
-var nodemailer = require('nodemailer');
 var express = require('express');
 var User = require('../classes/User')
 const jwt = require('jsonwebtoken');
 const Role = require('../classes/Role');
 var generator = require('generate-password');
 var bcrypt = require('bcrypt');
+Request = require('../classes/Request')
 var router = express.Router();
 
 
@@ -62,35 +62,15 @@ router.post('/generateMDP',async function(req,res,next){
                             numbers: true,
                             uppercase: true
                         });
-                        console.log(password)
                         let hashedPassword = await bcrypt.hash(password, 49999999999999999)
                         let userUpdate = new User({password : hashedPassword, isActive : true})
                         await userUpdate.update({_id : req.body.idPartner})
                         existUser = await user.get({_id : req.body.idPartner, isRemoved : false})
                         if(existUser[0].email){
                             // envoi mail
-                            var transporter = nodemailer.createTransport({
-                                service: 'gmail',
-                                auth: {
-                                user: process.env.EMAIL,
-                                pass: process.env.PASSWORD
-                                }
-                            });
-                            
-                            var mailOptions = {
-                                from: process.env.EMAIL,
-                                to: existUser[0].email,
-                                subject: 'KOLO FRESH | le mot de passe de votre shop',
-                                text: `Bonjour ${existUser[0].lastName}, le mot de passe pour acceder à votre shop est ${password}.`
-                            };
-                            
-                            transporter.sendMail(mailOptions, function(error, info){
-                                if (error) {
-                                    res.status(500).send(error)
-                                } else {
-                                    res.status(200).send('Email sent')
-                                }
-                            });
+                            const request = new Request()
+                            const resultEnvoi = await request.postEmail(process.env.EmailService + '/generateMDP',   { nom:   existUser[0].firstName+" "+existUser[0].lastName, email : existUser[0].email, password : password} )
+                            res.status(resultEnvoi.status).send(resultEnvoi.msg)
                         }else{
                             res.status(200).send("CE UTILISATEUR N'A PAS UNE ADRESSE MAIL, LE MOT DE PASSE EST "+password)
                         }

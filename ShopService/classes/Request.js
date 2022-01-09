@@ -1,9 +1,9 @@
 const axios = require("axios")
+const transaction = require('../data/transactions')
+
 
 collections = {
-    User : "users",
-    Token : "tokens",
-    Role : "roles"
+   Shop:"shops"
 }
 
 module.exports = class Request {
@@ -31,7 +31,24 @@ module.exports = class Request {
       "filters" : filters
     }
     let items;
+    console.log(data)
     await axios.get(process.env.CRUDService, {
+      params: data
+    }).then(({ data }) => {
+      items = data;
+    })
+    return items
+  }
+
+  async getByIds(filters) {
+    let data = {
+      "dbName" : "kolofresh", 
+      "collectionName" : collections[this.constructor.name],
+      "filters" : filters
+    }
+    let items;
+    console.log(data)
+    await axios.get(process.env.CRUDService+'/id', {
       params: data
     }).then(({ data }) => {
       items = data;
@@ -54,7 +71,6 @@ module.exports = class Request {
     })
     return items
   }
-
   async delete(filters) { 
     let items
     let data = {
@@ -62,22 +78,30 @@ module.exports = class Request {
       "collectionName" : collections[this.constructor.name],
       "filters" : filters
     }
+    console.log(data);
     await axios.delete(process.env.CRUDService+'/one', data).then(({ data }) => {
       items = data
     }).catch(e => {
-      console.log(e)
+      //console.log(e)
       return e
     })
     return items
   }
 
-  async postEmail(url, data) {
-    let obj
-    await axios.post(url, data).then(({ data }) => {
-      obj = data
-    }).catch(e => {
-      obj = e
+  async transaction(filters) {
+    let items
+    let data = {
+      "filters":filters,
+      "dbName" : "kolofresh",
+    }
+    console.log(`this is filters received ${JSON.stringify(filters)}`)
+    console.log(`this is data received ${JSON.stringify(data)}`)
+    await axios.delete(process.env.CRUDService+'/deleted',{data}).then(({ data }) => {
+      items = data
+} 
+).catch(e => {
+      return e
     })
-    return obj
+    return items
   }
 }

@@ -2,6 +2,8 @@ var express = require('express');
 var User = require('../classes/User')
 const {phone} = require('phone')
 const Role = require('../classes/Role')
+var Request = require('../classes/Request');
+const { isValid } = require('ipaddr.js');
 var router = express.Router();
 
 // new partner
@@ -22,6 +24,7 @@ var router = express.Router();
         let userData2
         let role1
         let resultRole
+        let isValid = true
         // verifier email existe ou non
         if(req.body.email) {
             userData1 = await user.get({email : req.body.email, isRemoved : false})
@@ -32,10 +35,14 @@ var router = express.Router();
                 // verifier pour tous les users with the same @mail
                 for (let i = 0; i < userData1.length; i++) {
                 resultRole = await role1.get({role : 'partner', idUser : userData1[i]._id, isRemoved : false})
-                if(resultRole.length!=0) res.status(401).send("CE UTILISATEUR EXISTE DEJA")
+                if(resultRole.length!=0) {
+                    isValid = false
+                    res.status(401).send("CE UTILISATEUR EXISTE DEJA")
+                }
                 }
             } 
-        }else{
+        }
+        if(isValid){
             // verifier phone existe ou non
             userData2 = await user.get({phone :  result.phoneNumber, isRemoved : false})
             // user existe deja email et phone unique
@@ -45,9 +52,13 @@ var router = express.Router();
                 // verifier pour tous les users with the same phoneNumber
                 for (let i = 0; i < userData2.length; i++) {
                 resultRole = await role1.get({role : 'partner', idUser : userData2[i]._id, isRemoved : false})
-                if(resultRole.length!=0) res.status(401).send("CE UTILISATEUR EXISTE DEJA")
+                if(resultRole.length!=0) {
+                    isValid =false
+                    res.status(401).send("CE UTILISATEUR EXISTE DEJA")
                 }
-            }else{
+                }
+            }
+            if(isValid){
                 user = new User({firstName: req.body.firstName,
                     lastName : req.body.lastName, 
                     isRemoved : false,
@@ -62,9 +73,13 @@ var router = express.Router();
                 await role.post();
                 // get the user info by id
                 let userData = await user.get({_id : idUser.insertedId, isRemoved : false})
-                // send it
-                res.status(200).send(userData);
-            }
+                // envoi mail (req.body.nom, req.body.phone,req.body.nomAdmin, req.body.emailAdmin)
+                let adminDataRole = await role.get({role : 'admin', isRemoved : false})
+                let adminData = await user.get({_id : adminDataRole[0].idUser})
+                const request = new Request()
+                await request.postEmail(process.env.EmailService + '/newPartner',   { nom : userData[0].firstName +" " + userData[0].lastName, phone : userData[0].phone, nomAdmin : adminData[0].firstName+" "+adminData[0].lastName, emailAdmin : adminData[0].email} )
+                res.status(200).send(userData)
+                }
         }
     }
   })

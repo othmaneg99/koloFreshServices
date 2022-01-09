@@ -63,16 +63,17 @@ async function checkPasswordAndSendToken(passwordEnterByUser,userData, rememberM
     let match = await bcrypt.compare(passwordEnterByUser, password);
       if(match){ 
           // password correct 
-            if(userData.isreset == false){
-              return "VOUS AVEZ SAISI L'ANCIEN MOT DE PASSE"
+            if(userData.isReseted == true){
+              // isReseted false 
+              let user = new User({isReseted : false})
+              await user.update({_id : userData._id});
             /*}else if(userData.isverified == false){
               return 'VOUS DEVEZ VERIFIER VOTRE COMPTE'*/
-            }else{
+            }
                //  check if the user has token or not
               let existUser = await getAccess(userData._id)
               accessToken = existUser.length == 0 ? await generateToken(userData,rememberMe) : verifyToken(userData,existUser[0].token,rememberMe)
               return accessToken
-            }
       }else{
           return false
       }
@@ -211,9 +212,7 @@ router.post('/', async function(req, res) {
             isValid = true; // user a le role
             // vérifier mot de passe et générer token
             accessToken = await checkPasswordAndSendToken(req.body.password,userData[i], req.query.rememberMe)
-            if(accessToken == "VOUS AVEZ SAISI L'ANCIEN MOT DE PASSE" /*|| accessToken == 'VOUS DEVEZ VERIFIER VOTRE COMPTE'*/){  
-              res.status(401).send(accessToken)
-            }else if(accessToken){
+            if(accessToken){
               res.status(200).send(accessToken) 
             }else{
               res.status(401).send("NOM D'UTILISATEUR OU MOT DE PASSE EST INCORRECT")
