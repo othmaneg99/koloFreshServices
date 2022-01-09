@@ -2,3 +2,5 @@ AuthService/node_modules
 CRUDService/node_modules
 OrderService/node_modules
 EmailService/node_modules
+ShopService/.env
+ShopService/node_modules
