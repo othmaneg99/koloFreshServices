@@ -184,7 +184,7 @@ router.post('/generateMDP', async function(req, res, next) {
 });
 
 router.post('/newPartner', async function(req, res, next) { 
-  let result = await sendEmailNewPartner(req.body.nom, req.body.phone,req.body.nomAdmin, req.body.emailAdmin, req.body.emailAdmin);
+  let result = await sendEmailNewPartner(req.body.nom, req.body.phone,req.body.nomAdmin, req.body.emailAdmin);
   res.send(result);
 });
 
