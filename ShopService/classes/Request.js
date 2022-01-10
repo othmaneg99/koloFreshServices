@@ -1,5 +1,5 @@
 const axios = require("axios")
-const transaction = require('../data/transactions')
+
 
 
 collections = {
@@ -93,10 +93,12 @@ module.exports = class Request {
     let data = {
       "filters":filters,
       "dbName" : "kolofresh",
+      "mainCollectionName" : collections[this.constructor.name],
+      "foreignCollectionName" : "products",
     }
     console.log(`this is filters received ${JSON.stringify(filters)}`)
     console.log(`this is data received ${JSON.stringify(data)}`)
-    await axios.delete(process.env.CRUDService+'/deleted',{data}).then(({ data }) => {
+    await axios.patch(process.env.CRUDService+'/transaction',data).then(({ data }) => {
       items = data
 } 
 ).catch(e => {
@@ -104,4 +106,25 @@ module.exports = class Request {
     })
     return items
   }
+
+  //posting in email service
+  async postEmail(url, data) {
+    let obj
+    await axios.post(url, data).then(({ data }) => {
+      obj = data
+    }).catch(e => {
+      obj = e
+    })
+    return obj
+  }
+
+  
+
+
+
+
+
+
+
+
 }
