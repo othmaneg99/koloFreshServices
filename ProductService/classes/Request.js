@@ -79,8 +79,24 @@ module.exports = class Request {
     console.log(data);
     await axios.delete(process.env.CRUDService+'/one', data).then(({ data }) => {
       items = data
+      console.log(items);
     }).catch(e => {
-      //console.log(e)
+      console.log(e)
+      return e
+    })
+    return items
+  }
+
+  async softDelete(filters){
+    let items;
+    const data1={ 
+      "dbName":"kolofresh", 
+      "filters": filters, 
+      "collectionName": collections[this.constructor.name] 
+    }
+    await axios.delete(process.env.CRUDService+'/one',{data:data1}).then(({ data }) => {
+      items = data
+    }).catch(e => {
       return e
     })
     return items

@@ -5,8 +5,12 @@ var Product = require('../classes/Product')
 app.get('/', async (req, res) => {
   const product = new Product({})
   const data = await product.get(req.query.filters);
-  console.log(data)
-  res.send(data);
+      if(data.length == 0 ){
+        res.status(401).send("product not found")
+    }else {
+      console.log(data)
+      res.send(data);
+    }
   
 });
 
@@ -19,10 +23,16 @@ app.get('/id', async (req, res) => {
 });
 
 app.post('/', async (req, res) => {
-  const data = req.body
-  data.isRemoved=false;
-  const product = new Product(data)
-  res.send(await product.post())
+  const product = new Product({});
+    let productExist = await product.get({name : req.body.name,idShop : req.body.idShop, idCateg : req.body.idCateg, isRemoved : false})
+    if(productExist.length != 0){
+        res.status(401).send("this product  already exists!")
+    }else{
+        const data = req.body
+        data.isRemoved=false;
+        const product = new Product(data)
+        res.send(await product.post())
+    }
 });
 
 app.patch('/', async (req, res) => {
@@ -35,9 +45,9 @@ app.patch('/', async (req, res) => {
 
 });
 app.delete('/', async (req, res) => {
-    console.log(req.body.filters)
-    const product = new Product({isRemoved:true})
-    res.send(await product.update(req.body.filters))
+    const filters=req.body.filters
+    const product = new Product({})
+    res.send(await product.softDelete(filters));
 });
 
 
