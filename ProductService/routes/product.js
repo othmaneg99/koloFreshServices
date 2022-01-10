@@ -36,13 +36,22 @@ app.post('/', async (req, res) => {
 });
 
 app.patch('/', async (req, res) => {
-  const data = req.body.data
   const filters = req.body.filters
-  const product = new Product(data)
-
-  res.send(await product.update(filters))
-
-
+  const notExist = await product.get(filters);
+  if(notExist.length == 0 ){
+    res.status(401).send("product not found");
+  }else{
+    let productExist = await product.get({name : req.body.data.name, idShop:notExist.idShop})
+    console.log(productExist);
+    // product already exists
+    if(productExist.length != 0){
+        res.status(401).send("this product  already exists!")
+    }else{
+      const data = req.body.data
+      const product = new Product(data)
+      res.send(await product.update(filters))
+    }
+  }
 });
 app.delete('/', async (req, res) => {
     const filters=req.body.filters
