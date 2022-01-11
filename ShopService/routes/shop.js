@@ -14,13 +14,15 @@ router.post("/admin", async (req,res)=>{
   data.isRemoved = false;
   data.status = "active";
   data._createdAt = new Date().toISOString().replace(/T/, ' ').replace(/\..+/,'');  
-  const shop = new Shop(data);
   try{
-    const result = await shop.post();
-    //await request.postEmail(process.env.EmailService + '/newPartner',   { nom:   existUser[0].firstName+" "+existUser[0].lastName, email : existUser[0].email, password : password} )
-    res.send(result);
+  const shop = new Shop(data);
+  const existingShop = await shop.get({name :data.name});
+  if(!existingShop.length){
+  res.send(await shop.post());
+  }else{
+    res.send('Shop already exists');
   }
-  catch(e){ 
+  }catch(e){
     res.send(e);
   }
 });
