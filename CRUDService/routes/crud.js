@@ -273,24 +273,6 @@ app.patch('/transaction', async (req, res) => {
      res.send("success");
  }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //delete document:
 
 app.delete('/',async (req,res)=>{
