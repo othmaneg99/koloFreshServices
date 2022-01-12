@@ -4,3 +4,4 @@ OrderService/node_modules
 EmailService/node_modules
 ShopService/.env
 ShopService/node_modules
+ProductService/node_modules
