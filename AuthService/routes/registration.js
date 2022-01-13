@@ -4,6 +4,7 @@ var User = require("../classes/User");
 const { phone } = require("phone");
 var bcrypt = require("bcrypt");
 const Role = require("../classes/Role");
+const date = require("date-and-time");
 
 require("dotenv").config();
 
@@ -81,6 +82,8 @@ router.post("/", async function (req, res, next) {
             req.body.password,
             49999999999999999
           );
+          let now = new Date();
+          let dateNow = date.addHours(now, 1);
           let newUser = new User({
             email: email,
             phone: result.phoneNumber,
@@ -91,6 +94,10 @@ router.post("/", async function (req, res, next) {
             isVerified: false,
             isReseted: false,
             isActive: true,
+            _createdAt: dateNow
+              .toISOString()
+              .replace(/T/, " ")
+              .replace(/\..+/, ""),
           });
           let userId = await newUser.post();
           let role = new Role({

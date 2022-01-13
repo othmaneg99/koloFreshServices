@@ -4,6 +4,8 @@ const { phone } = require("phone");
 const Role = require("../classes/Role");
 var Request = require("../classes/Request");
 const { isValid } = require("ipaddr.js");
+const date = require("date-and-time");
+
 var router = express.Router();
 
 // new partner
@@ -78,7 +80,9 @@ router.post("/register", async function (req, res, next) {
             }
           }
           if (isValid) {
-            user = new User({
+            let now = new Date();
+            let dateNow = date.addHours(now, 1);
+            let userData = {
               firstName: req.body.firstName,
               lastName: req.body.lastName,
               isRemoved: false,
@@ -87,7 +91,12 @@ router.post("/register", async function (req, res, next) {
               isReseted: false,
               email: req.body.email,
               phone: result.phoneNumber,
-            });
+              _createdAt: dateNow
+                .toISOString()
+                .replace(/T/, " ")
+                .replace(/\..+/, ""),
+            };
+            user = new User(userData);
             let idUser = await user.post();
             let role = new Role({
               role: "partner",
@@ -95,11 +104,6 @@ router.post("/register", async function (req, res, next) {
               isRemoved: false,
             });
             await role.post();
-            // get the user info by id
-            let userData = await user.get({
-              _id: idUser.insertedId,
-              isRemoved: false,
-            });
             // envoi mail (req.body.nom, req.body.phone,req.body.nomAdmin, req.body.emailAdmin)
             let adminDataRole = await role.get({
               role: "admin",
@@ -107,13 +111,21 @@ router.post("/register", async function (req, res, next) {
             });
             let adminData = await user.get({ _id: adminDataRole[0].idUser });
             const request = new Request();
-            await request.postEmail(process.env.EmailService + "/newPartner", {
-              nom: userData[0].firstName + " " + userData[0].lastName,
-              phone: userData[0].phone,
+            await request.postReq(process.env.EmailService + "/newPartner", {
+              nom: req.body.firstName + " " + req.body.lastName,
+              phone: result.phoneNumber,
               nomAdmin: adminData[0].firstName + " " + adminData[0].lastName,
               emailAdmin: adminData[0].email,
             });
-            res.status(200).send(userData[0]);
+            // appel notifaction service => create a notification
+            await request.postReq(
+              process.env.DemandeService + "/demande/newPartner",
+              {
+                idUser: idUser.insertedId,
+              }
+            );
+            userData._id = idUser.insertedId;
+            res.status(200).send(userData);
           }
         }
       }

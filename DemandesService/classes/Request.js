@@ -1,9 +1,7 @@
 const axios = require("axios");
 
 collections = {
-  User: "users",
-  Token: "tokens",
-  Role: "roles",
+  Notification: "notifications",
 };
 
 module.exports = class Request {
@@ -79,18 +77,5 @@ module.exports = class Request {
         return e;
       });
     return items;
-  }
-
-  async postReq(url, data) {
-    let obj;
-    await axios
-      .post(url, data)
-      .then(({ data }) => {
-        obj = data;
-      })
-      .catch((e) => {
-        obj = e;
-      });
-    return obj;
   }
 };

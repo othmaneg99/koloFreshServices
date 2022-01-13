@@ -68,7 +68,7 @@ router.post("/", async function (req, res, next) {
             if (existUser[0].email) {
               // envoi mail
               const request = new Request();
-              const resultEnvoi = await request.postEmail(
+              const resultEnvoi = await request.postReq(
                 process.env.EmailService + "/newPassword",
                 {
                   email: existUser[0].email,

@@ -9,6 +9,7 @@ var Role = require("../classes/Role");
 var { phone } = require("phone");
 const jwt = require("jsonwebtoken");
 var bcrypt = require("bcrypt");
+const date = require("date-and-time");
 
 require("dotenv").config();
 
@@ -117,6 +118,8 @@ router.get("/success", async function (req, res) {
   });
   // new user
   if (existUser.length == 0) {
+    let now = new Date();
+    let dateNow = date.addHours(now, 1);
     let userData = {
       id_google: userProfile.id,
       lastName: userProfile.name.familyName,
@@ -126,6 +129,7 @@ router.get("/success", async function (req, res) {
       isVerified: true,
       isReseted: false,
       isActive: true,
+      _createdAt: dateNow.toISOString().replace(/T/, " ").replace(/\..+/, ""),
     };
     let newUser = new User(userData);
     let userId = await newUser.post();

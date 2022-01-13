@@ -83,7 +83,7 @@ router.post("/generateMDP", async function (req, res, next) {
             if (existUser[0].email) {
               // envoi mail
               const request = new Request();
-              const resultEnvoi = await request.postEmail(
+              const resultEnvoi = await request.postReq(
                 process.env.EmailService + "/generateMDP",
                 {
                   nom: existUser[0].firstName + " " + existUser[0].lastName,
