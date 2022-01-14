@@ -3,6 +3,13 @@ var router = express.Router();
 let Notification = require("../classes/Notification");
 const date = require("date-and-time");
 
+//Get Request:
+app.get('/', async (req, res) => {
+  const notification = new Notification({})
+  const data = await notification.getSort(req.query.filters);
+  res.send(data);
+});
+
 /* new demande de creation de shop*/
 router.post("/newPartner", async function (req, res, next) {
   let now = new Date();
@@ -18,4 +25,19 @@ router.post("/newPartner", async function (req, res, next) {
   res.status(200).send("done");
 });
 
+//update Request:
+
+app.patch('/',async (req,res)=>{
+      const filters = req.body.filters
+      const data = req.body.data
+      const notification = new Notification(data)
+      res.send(await notification.update(filters))
+})
+
+//Delete Request
+app.delete('/', async (req, res) => {
+  const filters=req.body.filters
+  const notification = new Notification({})
+  res.send(await notification.delete(filters));
+});
 module.exports = router;

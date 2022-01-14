@@ -15,6 +15,32 @@ function convertIds(ids){
     return ids;
 }
 
+
+//Get Document sorted in reverse order:
+app.get('/sort',async (req,res)=>{
+    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.query.dbName}`;
+    const client = new MongoClient(uri);
+    try{
+        await client.connect();
+        const filters=JSON.parse(req.query.filters)
+        if(filters._id){
+            const ObjectId = require('mongodb').ObjectId; 
+            let good_id = new ObjectId(filters._id);
+            filters._id = good_id;
+        }
+        const result = await client.db(req.query.dbName).collection(req.query.collectionName).find(filters).sort({$natural:-1});;
+        if (result){
+             const results = await result.toArray();
+             res.send(results);
+        }
+         else res.status(400).send("Not found");
+    }catch(e){
+        console.log(e);
+    }finally{
+        await client.close();
+    }
+})
+
 /*Get many documents by their id (array of ids) */
 app.get('/id',async(req,res)=>{
     

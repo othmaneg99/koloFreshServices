@@ -41,6 +41,23 @@ module.exports = class Request {
     return items;
   }
 
+  async getSort(filters) {
+    let data = {
+      dbName: "kolofresh",
+      collectionName: collections[this.constructor.name],
+      filters: filters,
+    };
+    let items;
+    await axios
+      .get(process.env.CRUDService+'/sort', {
+        params: data,
+      })
+      .then(({ data }) => {
+        items = data;
+      });
+    return items;
+  }
+
   async update(filters) {
     let data = {
       dbName: "kolofresh",
