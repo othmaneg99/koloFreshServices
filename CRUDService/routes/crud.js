@@ -3,6 +3,8 @@ const app = express();
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 const { MongoClient}= require('mongodb');
+const Sequelize=require('sequelize');
+const Op=Sequelize.Op;
 require('dotenv').config();
 
 function convertIds(ids){
@@ -67,18 +69,37 @@ app.get('/id',async(req,res)=>{
 
 
 //Get documents:
-app.get('/',async (req,res)=>{
+app.get('/search',async (req,res)=>{
     const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.query.dbName}`;
     const client = new MongoClient(uri);
     try{
         await client.connect();
         const filters=JSON.parse(req.query.filters)
-        if(filters._id){
-            const ObjectId = require('mongodb').ObjectId; 
-            let good_id = new ObjectId(filters._id);
-            filters._id = good_id;
+        const name=filters.key;                            
+        const result = await client.db(req.query.dbName).collection(req.query.collectionName).find({name:{$regex:name,$options:'$i'}});
+        
+        if (result){
+             const results = await result.toArray();
+             console.log(results)
+             res.send(results);
         }
-        const result = await client.db(req.query.dbName).collection(req.query.collectionName).find(filters);
+         else res.status(400).send("Not found");
+    }catch(e){
+        console.log(e);
+    }finally{
+        await client.close();
+    }
+})
+
+//Get Documents by key:
+app.get('/search',async (req,res)=>{
+    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.query.dbName}`;
+    const client = new MongoClient(uri);
+    try{
+        await client.connect();
+        const filters=JSON.parse(req.query.filters)
+        const name=filters.name;
+        const result = await client.db(req.query.dbName).collection(req.query.collectionName).find({name:/^bar$/i});
         if (result){
              const results = await result.toArray();
              res.send(results);

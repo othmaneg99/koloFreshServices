@@ -17,6 +17,12 @@ app.get('/id', async (req, res) => {
   
 });
 
+app.get('/search', async (req, res) => {
+  const product = new Product({})
+  const data = await product.search(req.query.filters);
+  res.send(data);
+  
+});
 app.post('/', async (req, res) => {
   const product = new Product({});
     let productExist = await product.get({name : req.body.name,idShop : req.body.idShop, idCateg : req.body.idCateg, isRemoved : false})

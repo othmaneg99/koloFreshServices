@@ -32,6 +32,18 @@ app.get('/id',async function (req, res, next){
     });
 });
 
+app.get('/search',async function (req, res, next){
+  filters = JSON.parse(req.query.filters)
+  await request.get(process.env.productService +'/prod/search', req.query).then((data) => {
+    if (data.response) {
+      res.status(data.response.status).send(data.response.data);
+    } else res.status(200).send(data);
+  })
+  .catch((e) => {
+    res.status(403).send(e);
+  });
+});
+
 app.post('/', async function (req, res, next) {
   await request
     .post(process.env.productService+'/prod', req.body)

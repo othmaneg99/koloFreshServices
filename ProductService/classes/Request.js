@@ -54,6 +54,21 @@ module.exports = class Request {
     return items
   }
 
+  async search(filters) {
+    let data = {
+      "dbName" : "kolofresh", 
+      "collectionName" : collections[this.constructor.name],
+      "filters" : filters
+    }
+    let items;
+    console.log(data)
+    await axios.get(process.env.CRUDService+'/search', {
+      params: data
+    }).then(({ data }) => {
+      items = data;
+    })
+    return items
+  }
   async update(filters) {
     let data = {
       "dbName" : "kolofresh", 
