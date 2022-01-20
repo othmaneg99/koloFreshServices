@@ -37,6 +37,7 @@ app.post("/newDemande", async function (req, res, next) {
     newCat: req.body.categorie,
     isRemoved: false,
   });
+  console.log(notification);
   await notification.post();
   res.status(200).send("done");
 });

@@ -6,6 +6,7 @@ require('dotenv').config()
 
 var indexRouter = require('./routes/index');
 var shopRouter = require('./routes/shop');
+var partnerRouter = require('./routes/partner')
 var app = express();
 
 app.use(logger('dev'));
@@ -16,4 +17,5 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/shop',shopRouter);
+app.use('/partner',partnerRouter);
 module.exports = app;
