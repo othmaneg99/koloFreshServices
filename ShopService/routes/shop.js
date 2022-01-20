@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const axios = require('axios');
 const Shop = require('../classes/Shop');
 
 router.get('/', async (req, res) => {
@@ -18,7 +19,13 @@ router.post("/admin", async (req, res) => {
     const shop = new Shop(data);
     const existingShop = await shop.get({ name: data.name });
     if (!existingShop.length) {
-      res.send(await shop.post());
+      let createdShop = await shop.post();
+      let data = {
+        "token": req.body.token,
+        "idPartner": req.body.idUser
+      }
+      await axios.post(process.env.AuthService+ '/generateMDP', data)
+      res.send(createdShop);
     } else {
       res.send('Name of the Shop already exists, please try another name');
     }
@@ -43,7 +50,7 @@ router.patch('/admin', async (req, res) => {
   const shop = new Shop(data)
   try {
     if (data.name) {
-      console.log('Here')
+      
       const existingShop = await shop.get({ name: data.name });
       if (existingShop.length === 0) {
         res.send(await shop.update(filters));

@@ -43,6 +43,9 @@ router.use(async function (req, res, next) {
 });
 
 router.post("/generateMDP", async function (req, res, next) {
+  console.log(`I'm here`)
+  console.log(req.body)
+
   if (req.body._id == 0) res.status(401).send("TOKEN INVALID");
   else {
     // token valid
