@@ -18,6 +18,17 @@ app.get('/', async (req, res) => {
 });
 
 // add new item
+app.post('/partner/update', async (req, res) => {
+  await request.post(process.env.shopService + '/partner/update', req.body).then((data) => {
+    console.log(data)
+    res.status(200).send(data)
+  }).catch((e) => {
+    res.status(403).send(e)
+  })
+})
+
+
+
 app.post('/admin', async (req, res) => {
   await request.post(process.env.shopService + '/shop/admin', req.body).then((data) => {
     console.log(data)

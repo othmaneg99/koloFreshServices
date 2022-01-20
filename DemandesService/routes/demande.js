@@ -11,7 +11,7 @@ app.get("/", async (req, res) => {
 });
 
 /* new demande de creation de shop*/
-router.post("/newPartner", async function (req, res, next) {
+app.post("/newPartner", async function (req, res, next) {
   let now = new Date();
   let dateNow = date.addHours(now, 1);
   let notification = new Notification({
@@ -26,7 +26,8 @@ router.post("/newPartner", async function (req, res, next) {
 });
 
 /* new demande de creation de shop*/
-router.post("/newDemande", async function (req, res, next) {
+app.post("/newDemande", async function (req, res, next) {
+  console.log('here')
   let now = new Date();
   let dateNow = date.addHours(now, 1);
   let notification = new Notification({

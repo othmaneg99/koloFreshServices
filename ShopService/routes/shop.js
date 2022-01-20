@@ -97,8 +97,5 @@ router.patch("/admin", async (req, res) => {
   }
 });
 
-router.post("/demande", async (req, res) => {
-  // type && iduser
-});
 
 module.exports = router;
