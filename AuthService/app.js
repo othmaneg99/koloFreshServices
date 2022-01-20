@@ -10,6 +10,7 @@ var userRouter = require("./routes/user");
 var partnerRouter = require("./routes/partner");
 var authorisationRouter = require("./routes/authorisation");
 var resetRouter = require("./routes/resetPassword");
+var usersRouter = require("./routes/users");
 var app = express();
 
 // view engine setup
@@ -27,6 +28,8 @@ app.use("/login", loginRouter);
 app.use("/register", registeRouter);
 app.use("/partner", partnerRouter);
 app.use("/user", userRouter);
+app.use("/user", userRouter);
+app.use("/users", usersRouter);
 app.use("/authorisation", authorisationRouter);
 app.use("/reset", resetRouter);
 //app.use('/partner', partnerRouter)

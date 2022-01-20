@@ -16,7 +16,7 @@ app.post("/newPartner", async function (req, res, next) {
   let dateNow = date.addHours(now, 1);
   let notification = new Notification({
     idUser: req.body.idUser,
-    status: "pending",
+    status: "Pending",
     _createdAt: dateNow.toISOString().replace(/T/, " ").replace(/\..+/, ""),
     type: "new",
     isRemoved: false,
@@ -32,7 +32,7 @@ app.post("/newDemande", async function (req, res, next) {
   let dateNow = date.addHours(now, 1);
   let notification = new Notification({
     idUser: req.body.idUser,
-    status: "pending",
+    status: "Pending",
     _createdAt: dateNow.toISOString().replace(/T/, " ").replace(/\..+/, ""),
     type: req.body.type,
     newCat: req.body.categorie,

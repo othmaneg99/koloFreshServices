@@ -74,15 +74,17 @@ router.patch("/admin", async (req, res) => {
             },
           }
         );
-        let type =
-          demande[0].type == "nom" ? "/resNewNameShop" : "/resNewCatShop";
+        console.log(demande.data[0].idUser);
         let user = await axios.get(
-          process.env.AuthService + "/user/information",
-          { _id: demande[0].idUser }
+          process.env.AuthService + "/users/information",
+          {
+            params: { _id: demande.data[0].idUser },
+          }
         );
-        await axios.post(process.env.EmailService + type, {
-          nom: user[0].firstName + " " + user[0].lastName,
-          email: user[0].email,
+        console.log("i am user " + user.data[0].email);
+        await axios.post(process.env.EmailService + "/resNewNameShop", {
+          nom: user.data[0].firstName + " " + user.data[0].lastName,
+          email: user.data[0].email,
         });
         res.send(result);
       } else {
