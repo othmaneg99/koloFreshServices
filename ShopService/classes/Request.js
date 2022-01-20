@@ -1,111 +1,122 @@
-const axios = require("axios")
-
-
+const axios = require("axios");
 
 collections = {
-   Shop:"shops"
-}
+  Shop: "shops",
+};
 
 module.exports = class Request {
-  constructor() {
-  }
+  constructor() {}
   async post() {
     let data = {
-      "dbName" : "kolofresh", 
-      "collectionName" : collections[this.constructor.name],
-      "data" : this
-    }
-    let obj
-    await axios.post(process.env.CRUDService+'/one', data).then(({ data }) => {
-      obj = data
-    }).catch(e => {
-      obj = e
-    })
-    return obj
+      dbName: "kolofresh",
+      collectionName: "shops",
+      data: this,
+    };
+    console.log("mydata" + data);
+    let obj;
+    await axios
+      .post(process.env.CRUDService + "/one", data)
+      .then(({ data }) => {
+        obj = data;
+      })
+      .catch((e) => {
+        obj = e;
+      });
+    return obj;
   }
 
   async get(filters) {
     let data = {
-      "dbName" : "kolofresh", 
-      "collectionName" : collections[this.constructor.name],
-      "filters" : filters
-    }
+      dbName: "kolofresh",
+      collectionName: "shops",
+      filters: filters,
+    };
     let items;
-    console.log(data)
-    await axios.get(process.env.CRUDService, {
-      params: data
-    }).then(({ data }) => {
-      items = data;
-    })
-    return items
+    console.log(data);
+    await axios
+      .get(process.env.CRUDService, {
+        params: data,
+      })
+      .then(({ data }) => {
+        items = data;
+      });
+    return items;
   }
 
   async getByIds(filters) {
     let data = {
-      "dbName" : "kolofresh", 
-      "collectionName" : collections[this.constructor.name],
-      "filters" : filters
-    }
+      dbName: "kolofresh",
+      collectionName: "shops",
+      filters: filters,
+    };
     let items;
-    console.log(data)
-    await axios.get(process.env.CRUDService+'/id', {
-      params: data
-    }).then(({ data }) => {
-      items = data;
-    })
-    return items
+    console.log(data);
+    await axios
+      .get(process.env.CRUDService + "/id", {
+        params: data,
+      })
+      .then(({ data }) => {
+        items = data;
+      });
+    return items;
   }
 
   async update(filters) {
     let data = {
-      "dbName" : "kolofresh", 
-      "collectionName" : collections[this.constructor.name],
-      "filters" : filters,
-      "data" : this
-    }
+      dbName: "kolofresh",
+      collectionName: "shops",
+      filters: filters,
+      data: this,
+    };
     let items;
-    await axios.patch(process.env.CRUDService+'/one', data).then(({ data }) => {
-      items = data
-    }).catch(e => {
-      return e
-    })
-    return items
+    await axios
+      .patch(process.env.CRUDService + "/one", data)
+      .then(({ data }) => {
+        items = data;
+      })
+      .catch((e) => {
+        return e;
+      });
+    return items;
   }
-  async delete(filters) { 
-    let items
+  async delete(filters) {
+    let items;
     let data = {
-      "dbName" : "kolofresh", 
-      "collectionName" : collections[this.constructor.name],
-      "filters" : filters
-    }
+      dbName: "kolofresh",
+      collectionName: "shops",
+      filters: filters,
+    };
     console.log(data);
-    await axios.delete(process.env.CRUDService+'/one', data).then(({ data }) => {
-      items = data
-    }).catch(e => {
-      //console.log(e)
-      return e
-    })
-    return items
+    await axios
+      .delete(process.env.CRUDService + "/one", data)
+      .then(({ data }) => {
+        items = data;
+      })
+      .catch((e) => {
+        //console.log(e)
+        return e;
+      });
+    return items;
   }
 
   async transaction(filters) {
-    let items
+    let items;
     let data = {
-      "filters":filters,
-      "dbName" : "kolofresh",
-      "mainCollectionName" : collections[this.constructor.name],
-      "foreignCollectionName" : "products",
-    }
-    console.log(`this is filters received ${JSON.stringify(filters)}`)
-    console.log(`this is data received ${JSON.stringify(data)}`)
-    await axios.patch(process.env.CRUDService+'/transaction',data).then(({ data }) => {
-      items = data
-} 
-).catch(e => {
-      return e
-    })
-    return items
+      filters: filters,
+      dbName: "kolofresh",
+      mainCollectionName: "shops",
+      foreignCollectionName: "products",
+    };
+    console.log(`this is filters received ${JSON.stringify(filters)}`);
+    console.log(`this is data received ${JSON.stringify(data)}`);
+    await axios
+      .patch(process.env.CRUDService + "/transaction", data)
+      .then(({ data }) => {
+        items = data;
+      })
+      .catch((e) => {
+        return e;
+      });
+    return items;
   }
-
-
-}
+};

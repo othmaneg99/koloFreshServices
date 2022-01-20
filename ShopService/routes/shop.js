@@ -60,7 +60,6 @@ router.patch("/admin", async (req, res) => {
     if (data.name) {
       const existingShop = await shop.get({ name: data.name });
       if (existingShop.length === 0) {
-        console.log("i am here");
         // ENVOI MAIL && Update demande
         let result = await shop.update(filters);
         await axios.patch(process.env.DemandesService + "/demande", {
@@ -70,7 +69,9 @@ router.patch("/admin", async (req, res) => {
         let demande = await axios.get(
           process.env.DemandesService + "/demande",
           {
-            filters: { _id: req.body.data.idDemande, isRemoved: false },
+            params: {
+              filters: { _id: req.body.data.idDemande, isRemoved: false },
+            },
           }
         );
         let type =
