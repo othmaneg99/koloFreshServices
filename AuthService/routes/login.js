@@ -173,7 +173,7 @@ router.get("/success", async function (req, res) {
       );
       // access token error
       if (!accessToken) {
-        res.status(401).send("ACCESS TOKEN INVALIDE");
+        res.status(200).send("ACCESS TOKEN INVALIDE");
       } // access token generated with success
       else {
         res.status(200).send({ user: existUser[0], token: accessToken });
@@ -181,7 +181,7 @@ router.get("/success", async function (req, res) {
     }
   }
 });
-router.get("/error", (req, res) => res.status(401).send("error logging in"));
+router.get("/error", (req, res) => res.status(200).send("error logging in"));
 
 passport.serializeUser(function (user, cb) {
   cb(null, user);
@@ -227,7 +227,8 @@ router.post("/", async function (req, res) {
   let userData;
   let accessToken;
   if (!req.body.userName || !req.body.password) {
-    res.status(500).send("MERCI DE REMPLIR TOUS LES CHAMPS.");
+    console.log("MERCI DE REMPLIR TOUS LES CHAMPS.");
+    res.status(200).send(false);
   } else {
     let filters;
     if (req.body.userName.includes("@"))
@@ -237,13 +238,15 @@ router.post("/", async function (req, res) {
       if (result.isValid) {
         filters = { phone: result.phoneNumber, isRemoved: false };
       } else {
-        res.status(401).send("LE NOM D'UTILISATEUR N'EST PAS VALIDE");
+        console.log("LE NOM D'UTILISATEUR N'EST PAS VALIDE");
+        res.status(200).send(false);
       }
     }
     userData = await user.get(filters);
     // user n'existe pas
     if (userData.length == 0) {
-      res.status(401).send("CE UTILISATEUR N'EXISTE PAS");
+      console.log("CE UTILISATEUR N'EXISTE PAS");
+      res.status(200).send(false);
     } // utilisateur existe
     else {
       // vérifier le role send role partner si il s'agit d'un cuisinier
@@ -270,14 +273,14 @@ router.post("/", async function (req, res) {
           if (accessToken) {
             res.status(200).send({ token: accessToken, user: userData[i] });
           } else {
-            res
-              .status(401)
-              .send("NOM D'UTILISATEUR OU MOT DE PASSE EST INCORRECT");
+            console.log("NOM D'UTILISATEUR OU MOT DE PASSE EST INCORRECT");
+            res.status(200).send(false);
           }
         }
       }
       // l'utilisateur n'a pas le role
-      if (!isValid) res.status(401).send("CE UTILISATEUR N'EXISTE PAS");
+      console.log("CE UTILISATEUR N'EXISTE PAS");
+      if (!isValid) res.status(200).send(false);
     }
   }
 });
