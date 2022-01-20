@@ -68,7 +68,7 @@ app.get('/id',async(req,res)=>{
 })
 
 
-//Get documents:
+//Search documents by name:
 app.get('/search',async (req,res)=>{
     const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.query.dbName}`;
     const client = new MongoClient(uri);
@@ -76,7 +76,7 @@ app.get('/search',async (req,res)=>{
         await client.connect();
         const filters=JSON.parse(req.query.filters)
         const name=filters.key;                            
-        const result = await client.db(req.query.dbName).collection(req.query.collectionName).find({name:{$regex:name,$options:'$i'}});
+        const result = await client.db(req.query.dbName).collection(req.query.collectionName).find({name:{$regex:name,$options:'$i'},isRemoved:false});
         
         if (result){
              const results = await result.toArray();
@@ -91,15 +91,19 @@ app.get('/search',async (req,res)=>{
     }
 })
 
-//Get Documents by key:
-app.get('/search',async (req,res)=>{
+//Get Documents:
+app.get('/',async (req,res)=>{
     const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.query.dbName}`;
     const client = new MongoClient(uri);
     try{
         await client.connect();
         const filters=JSON.parse(req.query.filters)
-        const name=filters.name;
-        const result = await client.db(req.query.dbName).collection(req.query.collectionName).find({name:/^bar$/i});
+        if(filters._id){
+            const ObjectId = require('mongodb').ObjectId; 
+            let good_id = new ObjectId(filters._id);
+            filters._id = good_id;
+        }
+        const result = await client.db(req.query.dbName).collection(req.query.collectionName).find(filters);
         if (result){
              const results = await result.toArray();
              res.send(results);
