@@ -218,7 +218,7 @@ router.post("/newNameShop", async function (req, res, next) {
     req.body.nomAdmin,
     req.body.emailAdmin,
     "Demande de changement du nom du shop",
-    "le changement de son nom de shop, le nouveau nom est " + req.body.newNom
+    "le changement de son nom de shop."
   );
   res.send(result);
 });
@@ -236,7 +236,7 @@ router.post("/newCatShop", async function (req, res, next) {
 });
 
 router.post("/resNewNameShop", async function (req, res, next) {
-  let decision = req.body.decision ? "a accepté" : "a refusé";
+  let decision = "a accepté";
   let result = await sendEmailResDemande(
     req.body.nom,
     req.body.email,
@@ -248,7 +248,7 @@ router.post("/resNewNameShop", async function (req, res, next) {
 });
 
 router.post("/resNewCatShop", async function (req, res, next) {
-  let decision = req.body.decision ? "a accepté" : "a refusé";
+  let decision = "a accepté";
   let result = await sendEmailResDemande(
     req.body.nom,
     req.body.email,

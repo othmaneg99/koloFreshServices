@@ -1,12 +1,13 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const axios = require('axios');
-const Shop = require('../classes/Shop');
+const axios = require("axios");
+const Shop = require("../classes/Shop");
+const app = require("../../DemandesService/routes/demande");
 
-router.get('/', async (req, res) => {
-  const shop = new Shop({})
+router.get("/", async (req, res) => {
+  const shop = new Shop({});
   const data = await shop.get(req.query.filters);
-  console.log(data)
+  console.log(data);
   res.send(data);
 });
 
@@ -14,58 +15,89 @@ router.post("/admin", async (req, res) => {
   const data = req.body;
   data.isRemoved = false;
   data.status = "active";
-  data._createdAt = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+  data._createdAt = new Date()
+    .toISOString()
+    .replace(/T/, " ")
+    .replace(/\..+/, "");
   try {
     const shop = new Shop(data);
     const existingShop = await shop.get({ name: data.name });
     if (!existingShop.length) {
       let createdShop = await shop.post();
       let data = {
-        "token": req.body.token,
-        "idPartner": req.body.idUser
-      }
-      await axios.post(process.env.AuthService+ '/generateMDP', data)
+        token: req.body.token,
+        idPartner: req.body.idUser,
+      };
+      await axios.post(
+        process.env.AuthService + "authorisation/generateMDP",
+        data
+      );
       res.send(createdShop);
     } else {
-      res.send('Name of the Shop already exists, please try another name');
+      res.send("Name of the Shop already exists, please try another name");
     }
   } catch (e) {
     res.send(e);
   }
 });
 
-
 //transaction
-router.patch('/admin/delete', async (req, res) => {
+router.patch("/admin/delete", async (req, res) => {
   const filters = req.body.filters;
-  const shop = new Shop({})
-  res.send(await shop.transaction(filters))
-})
+  const shop = new Shop({});
+  res.send(await shop.transaction(filters));
+});
 
-
-router.patch('/admin', async (req, res) => {
-  const data = req.body.data
-  const filters = req.body.filters
-  data._updatedAt = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
-  const shop = new Shop(data)
+router.patch("/admin", async (req, res) => {
+  const data = req.body.data;
+  const filters = req.body.filters;
+  data._updatedAt = new Date()
+    .toISOString()
+    .replace(/T/, " ")
+    .replace(/\..+/, "");
+  const shop = new Shop(data);
   try {
     if (data.name) {
-      
       const existingShop = await shop.get({ name: data.name });
       if (existingShop.length === 0) {
-        res.send(await shop.update(filters));
+        console.log("i am here");
+        // ENVOI MAIL && Update demande
+        let result = await shop.update(filters);
+        await axios.patch(process.env.DemandesService + "/demande", {
+          filters: { _id: req.body.data.idDemande, isRemoved: false },
+          data: { status: "Accepted" },
+        });
+        let demande = await axios.get(
+          process.env.DemandesService + "/demande",
+          {
+            filters: { _id: req.body.data.idDemande, isRemoved: false },
+          }
+        );
+        let type =
+          demande[0].type == "nom" ? "/resNewNameShop" : "/resNewCatShop";
+        let user = await axios.get(
+          process.env.AuthService + "/user/information",
+          { _id: demande[0].idUser }
+        );
+        await axios.post(process.env.EmailService + type, {
+          nom: user[0].firstName + " " + user[0].lastName,
+          email: user[0].email,
+        });
+        res.send(result);
       } else {
-        res.send('Name of the Shop already exists, please try another name');
+        res.send("Name of the Shop already exists, please try another name");
       }
     } else {
-      console.log('No name')
+      console.log("No name");
       res.send(await shop.update(filters));
     }
   } catch (e) {
-    res.send(e)
+    res.send(e);
   }
 });
 
-
+router.post("/demande", async (req, res) => {
+  // type && iduser
+});
 
 module.exports = router;
