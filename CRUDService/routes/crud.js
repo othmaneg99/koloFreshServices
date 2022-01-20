@@ -75,8 +75,10 @@ app.get('/search',async (req,res)=>{
     try{
         await client.connect();
         const filters=JSON.parse(req.query.filters)
-        const name=filters.key;                            
-        const result = await client.db(req.query.dbName).collection(req.query.collectionName).find({name:{$regex:name,$options:'$i'},isRemoved:false});
+        const name=filters.name;   
+        const idShop=filters.idShop;
+        const isRemoved=filters.isRemoved;                        
+        const result = await client.db(req.query.dbName).collection(req.query.collectionName).find({name:{$regex:name,$options:'$i'},idShop:idShop,isRemoved:isRemoved});
         
         if (result){
              const results = await result.toArray();
