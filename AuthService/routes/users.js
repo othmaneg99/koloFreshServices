@@ -6,12 +6,19 @@ const jwt = require("jsonwebtoken");
 var router = express.Router();
 
 router.get("/information", async function (req, res, next) {
+  console.log(req.query._id);
   // tokrn valid
   const user = new User({});
   let existUser = await user.get({ _id: req.query._id, isRemoved: false });
   if (existUser.length == 0) {
     res.status(401).send("CE UTILISATEUR N'EXISTE PAS");
   } else {
+    console.log({
+      firstName: existUser[0].firstName,
+      lastName: existUser[0].lastName,
+      phone: existUser[0].phone,
+      email: existUser[0].email,
+    });
     res.status(200).send({
       firstName: existUser[0].firstName,
       lastName: existUser[0].lastName,

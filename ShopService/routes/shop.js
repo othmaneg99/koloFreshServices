@@ -74,17 +74,15 @@ router.patch("/admin", async (req, res) => {
             },
           }
         );
-        console.log(demande.data[0].idUser);
         let user = await axios.get(
           process.env.AuthService + "/users/information",
           {
             params: { _id: demande.data[0].idUser },
           }
         );
-        console.log("i am user " + user.data[0].email);
         await axios.post(process.env.EmailService + "/resNewNameShop", {
-          nom: user.data[0].firstName + " " + user.data[0].lastName,
-          email: user.data[0].email,
+          nom: user.data.firstName + " " + user.data.lastName,
+          email: user.data.email,
         });
         res.send(result);
       } else {
@@ -92,6 +90,30 @@ router.patch("/admin", async (req, res) => {
       }
     } else {
       console.log("No name");
+      if (req.body.data.idDemande) {
+        await axios.patch(process.env.DemandesService + "/demande", {
+          filters: { _id: req.body.data.idDemande, isRemoved: false },
+          data: { status: "Accepted" },
+        });
+        let demande = await axios.get(
+          process.env.DemandesService + "/demande",
+          {
+            params: {
+              filters: { _id: req.body.data.idDemande, isRemoved: false },
+            },
+          }
+        );
+        let user = await axios.get(
+          process.env.AuthService + "/users/information",
+          {
+            params: { _id: demande.data[0].idUser },
+          }
+        );
+        await axios.post(process.env.EmailService + "/resNewCatShop", {
+          nom: user.data.firstName + " " + user.data.lastName,
+          email: user.data.email,
+        });
+      }
       res.send(await shop.update(filters));
     }
   } catch (e) {

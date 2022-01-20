@@ -268,7 +268,7 @@ router.post("/", async function (req, res) {
             req.query.rememberMe
           );
           if (accessToken) {
-            res.status(200).send(accessToken);
+            res.status(200).send({ token: accessToken, user: userData[i] });
           } else {
             res
               .status(401)
