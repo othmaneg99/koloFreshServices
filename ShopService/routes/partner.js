@@ -12,7 +12,7 @@ router.post("/update", async (req, res) => {
     let demande = {
       idUser: userId,
       type: data.type,
-      categorie: data.categorie
+      categorie: data.idCateg
     }
     console.log(demande)
 

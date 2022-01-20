@@ -27,7 +27,7 @@ app.post("/newPartner", async function (req, res, next) {
 
 /* new demande de creation de shop*/
 app.post("/newDemande", async function (req, res, next) {
-  console.log('here')
+  
   let now = new Date();
   let dateNow = date.addHours(now, 1);
   let notification = new Notification({
@@ -38,6 +38,7 @@ app.post("/newDemande", async function (req, res, next) {
     newCat: req.body.categorie,
     isRemoved: false,
   });
+  console.log(notification)
   await notification.post();
   res.status(200).send("done");
 });
