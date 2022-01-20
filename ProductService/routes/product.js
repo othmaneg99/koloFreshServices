@@ -5,12 +5,7 @@ var Product = require('../classes/Product')
 app.get('/', async (req, res) => {
   const product = new Product({})
   const data = await product.get(req.query.filters);
-      if(data.length == 0 ){
-        res.status(401).send("product not found")
-    }else {
-      console.log(data)
-      res.send(data);
-    }
+  res.send(data);
   
 });
 
@@ -53,6 +48,7 @@ app.patch('/', async (req, res) => {
     }
   }
 });
+
 app.delete('/', async (req, res) => {
     const filters=req.body.filters
     const product = new Product({})

@@ -6,6 +6,8 @@ const cors = require("cors");
 const app = express();
 const shopRouter = require("./routes/shops");
 const authRouter = require("./routes/auth");
+const productRouter = require("./routes/product");
+const requestRouter = require("./routes/demande");
 const res = require("express/lib/response");
 require("dotenv").config();
 
@@ -19,6 +21,8 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/shop", shopRouter);
 app.use("/auth", authRouter);
+app.use("/prod", productRouter);
+app.use("/demande", requestRouter);
 app.use("/", (req, res, next) => {
   res.send("Hello World");
 });

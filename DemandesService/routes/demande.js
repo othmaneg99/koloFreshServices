@@ -2,7 +2,7 @@ var express = require("express");
 var router = express.Router();
 let Notification = require("../classes/Notification");
 const date = require("date-and-time");
-
+var app = express();
 //Get Request:
 app.get('/', async (req, res) => {
   const notification = new Notification({})
@@ -40,4 +40,4 @@ app.delete('/', async (req, res) => {
   const notification = new Notification({})
   res.send(await notification.delete(filters));
 });
-module.exports = router;
+module.exports = app;
