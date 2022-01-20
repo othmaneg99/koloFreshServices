@@ -279,8 +279,11 @@ router.post("/", async function (req, res) {
         }
       }
       // l'utilisateur n'a pas le role
-      console.log("CE UTILISATEUR N'EXISTE PAS");
-      if (!isValid) res.status(200).send(false);
+
+      if (!isValid) {
+        console.log("CE UTILISATEUR N'EXISTE PAS");
+        res.status(200).send(false);
+      }
     }
   }
 });

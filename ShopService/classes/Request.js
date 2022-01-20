@@ -2,6 +2,7 @@ const axios = require("axios");
 
 collections = {
   Shop: "shops",
+  Categorie: "categorie",
 };
 
 module.exports = class Request {
@@ -9,7 +10,7 @@ module.exports = class Request {
   async post() {
     let data = {
       dbName: "kolofresh",
-      collectionName: "shops",
+      collectionName: collections[this.constructor.name],
       data: this,
     };
     console.log("mydata" + data);
@@ -28,7 +29,7 @@ module.exports = class Request {
   async get(filters) {
     let data = {
       dbName: "kolofresh",
-      collectionName: "shops",
+      collectionName: collections[this.constructor.name],
       filters: filters,
     };
     let items;
@@ -46,7 +47,7 @@ module.exports = class Request {
   async getByIds(filters) {
     let data = {
       dbName: "kolofresh",
-      collectionName: "shops",
+      collectionName: collections[this.constructor.name],
       filters: filters,
     };
     let items;
@@ -64,7 +65,7 @@ module.exports = class Request {
   async update(filters) {
     let data = {
       dbName: "kolofresh",
-      collectionName: "shops",
+      collectionName: collections[this.constructor.name],
       filters: filters,
       data: this,
     };
@@ -83,7 +84,7 @@ module.exports = class Request {
     let items;
     let data = {
       dbName: "kolofresh",
-      collectionName: "shops",
+      collectionName: collections[this.constructor.name],
       filters: filters,
     };
     console.log(data);
