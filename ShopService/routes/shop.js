@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const axios = require("axios");
 const Shop = require("../classes/Shop");
+const Categorie=require("../classes/Categorie");
 const app = require("../../DemandesService/routes/demande");
 
 router.get("/", async (req, res) => {
@@ -10,7 +11,12 @@ router.get("/", async (req, res) => {
   console.log(data);
   res.send(data);
 });
-
+router.get("/categ", async (req, res) => {
+  const cat = new Categorie({});
+  const data = await cat.getCateg(req.query.filters);
+  console.log(data);
+  res.send(data)
+});
 router.get('/search', async (req, res) => {
   const shop = new Shop({})
   const data = await shop.search(req.query.filters);

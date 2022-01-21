@@ -29,6 +29,20 @@ app.get('/search',async function (req, res, next){
   });
 });
 
+app.get('/categ',async function (req, res, next){
+  filters = JSON.parse(req.query.filters)
+  await request.get(process.env.shopService +'/shop/categ', req.query).then((data) => {
+    if (data.response) {
+      res.status(data.response.status).send(data.response.data);
+    } else res.status(200).send(data);
+
+    console.log(data)
+  })
+  .catch((e) => {
+    res.status(403).send(e);
+  });
+});
+
 // add new item
 app.post('/partner/update', async (req, res) => {
   await request.post(process.env.shopService + '/partner/update', req.body).then((data) => {

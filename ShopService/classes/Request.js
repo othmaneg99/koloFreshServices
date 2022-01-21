@@ -60,6 +60,24 @@ module.exports = class Request {
     return items;
   }
 
+  async getCateg(filters) {
+    let data = {
+      dbName: "kolofresh",
+      collectionName: "categorie",
+      filters: filters,
+    };
+    let items;
+    console.log(data);
+    await axios
+      .get(process.env.CRUDService, {
+        params: data,
+      })
+      .then(({ data }) => {
+        items = data;
+      });
+    return items;
+  }
+
   async getCat(filters) {
     let data = {
       dbName: "kolofresh",
