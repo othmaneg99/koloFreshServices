@@ -25,7 +25,21 @@ module.exports = class Request {
       });
     return obj;
   }
-
+  async search(filters) {
+    let data = {
+      dbName: "kolofresh",
+      collectionName: "shops",
+      filters: filters,
+    }
+    let items;
+    console.log(data)
+    await axios.get(process.env.CRUDService+'/searchShop', {
+      params: data
+    }).then(({ data }) => {
+      items = data;
+    })
+    return items
+  }
   async get(filters) {
     let data = {
       dbName: "kolofresh",

@@ -11,6 +11,13 @@ router.get("/", async (req, res) => {
   res.send(data);
 });
 
+router.get('/search', async (req, res) => {
+  const shop = new Shop({})
+  const data = await shop.search(req.query.filters);
+  res.send(data);
+  
+});
+
 router.post("/admin", async (req, res) => {
   const data = req.body;
   data.isRemoved = false;

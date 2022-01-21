@@ -55,6 +55,12 @@ app.patch('/', async (req, res) => {
   }
 });
 
+app.patch("/update", async (req, res) => {
+  const filters = req.body.filters;
+  const data = req.body.data;
+  const prod = new Product(data);
+  res.send(await prod.update(filters));
+});
 app.delete('/', async (req, res) => {
     const filters=req.body.filters
     const product = new Product({})

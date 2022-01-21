@@ -68,6 +68,17 @@ app.patch('/',async function (req, res, next) {
 
 })
 
+app.patch('/update',async function (req, res, next) {
+  await request.update(process.env.productService+'/prod/update', req.body).then((data) => {
+      console.log(data)
+      res.status(200).send(data)
+    }).catch((e) => {
+      res.status(403).send(e)
+    })
+
+})
+
+
 app.delete("/",async function (req, res, next) {
     await request.delete(process.env.productService+'/prod', {data: req.body}).then((data) => {
         console.log(data)

@@ -93,6 +93,28 @@ app.get('/search',async (req,res)=>{
     }
 })
 
+app.get('/searchShop',async (req,res)=>{
+    const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.query.dbName}`;
+    const client = new MongoClient(uri);
+    try{
+        await client.connect();
+        const filters=JSON.parse(req.query.filters)
+        const name=filters.name;
+        const isRemoved=filters.isRemoved;                        
+        const result = await client.db(req.query.dbName).collection(req.query.collectionName).find({name:{$regex:name,$options:'$i'},isRemoved:isRemoved});
+        
+        if (result){
+             const results = await result.toArray();
+             console.log(results)
+             res.send(results);
+        }
+         else res.status(400).send("Not found");
+    }catch(e){
+        console.log(e);
+    }finally{
+        await client.close();
+    }
+})
 //Get Documents:
 app.get('/',async (req,res)=>{
     const uri=`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@kolofreshdev.hecij.mongodb.net/${req.query.dbName}`;
