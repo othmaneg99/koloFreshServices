@@ -8,7 +8,7 @@ router.post("/update", async (req, res) => {
   let shop = new Shop({});
   let categorie = new Categorie({});
   const demanderShop = await shop.get({ _id: data.idShop });
-  let categorieData = await categorie.get({ name: data.nameCat });
+  let categorieData = await categorie.getCat({ name: data.nameCat });
   let userId = demanderShop[0].idUser;
   console.log(demanderShop);
   let demande = {

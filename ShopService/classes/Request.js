@@ -10,7 +10,7 @@ module.exports = class Request {
   async post() {
     let data = {
       dbName: "kolofresh",
-      collectionName: collections[this.constructor.name],
+      collectionName: "shops",
       data: this,
     };
     console.log("mydata" + data);
@@ -30,20 +30,40 @@ module.exports = class Request {
       dbName: "kolofresh",
       collectionName: "shops",
       filters: filters,
-    }
+    };
     let items;
-    console.log(data)
-    await axios.get(process.env.CRUDService+'/searchShop', {
-      params: data
-    }).then(({ data }) => {
-      items = data;
-    })
-    return items
+    console.log(data);
+    await axios
+      .get(process.env.CRUDService + "/searchShop", {
+        params: data,
+      })
+      .then(({ data }) => {
+        items = data;
+      });
+    return items;
   }
   async get(filters) {
     let data = {
       dbName: "kolofresh",
-      collectionName: collections[this.constructor.name],
+      collectionName: "shops",
+      filters: filters,
+    };
+    let items;
+    console.log(data);
+    await axios
+      .get(process.env.CRUDService, {
+        params: data,
+      })
+      .then(({ data }) => {
+        items = data;
+      });
+    return items;
+  }
+
+  async getCat(filters) {
+    let data = {
+      dbName: "kolofresh",
+      collectionName: "categorie",
       filters: filters,
     };
     let items;
@@ -61,7 +81,7 @@ module.exports = class Request {
   async getByIds(filters) {
     let data = {
       dbName: "kolofresh",
-      collectionName: collections[this.constructor.name],
+      collectionName: "shops",
       filters: filters,
     };
     let items;
@@ -79,7 +99,7 @@ module.exports = class Request {
   async update(filters) {
     let data = {
       dbName: "kolofresh",
-      collectionName: collections[this.constructor.name],
+      collectionName: "shops",
       filters: filters,
       data: this,
     };
@@ -98,7 +118,7 @@ module.exports = class Request {
     let items;
     let data = {
       dbName: "kolofresh",
-      collectionName: collections[this.constructor.name],
+      collectionName: "shops",
       filters: filters,
     };
     console.log(data);
